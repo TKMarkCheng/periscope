@@ -24,6 +24,7 @@ def main():
                         help="pybedtools likes to write to /tmp if you want to write somewhere else define it here",
                         default="/tmp")
     parser.add_argument('--sample', help='sample id', default="SHEF-D2BD9")
+    parser.add_argument('--gff', help='gff file',default=None)
     parser.add_argument('--technology', help='the sequencing technology used, either:\n*ont\n*illumina', default="ont")
 
     print("""
@@ -116,7 +117,10 @@ oso/.`.````..-+ssss+-`..```..-omhss+-` .ms``.-/oso
     else:
         resources_dir = args.resources
         
-    
+    if args.gff is None:
+        raise
+    else:
+        gff_file=args.gff
     #check if version number is correct or if resource files exist when using custom primers
     version = args.artic_primers
     version = [version] if isinstance(version, str) else version
@@ -154,6 +158,7 @@ oso/.`.````..-+ssss+-`..```..-omhss+-` .ms``.-/oso
         amplicon_bed=amplicons_bed,
         interest_bed=interest_bed,
         primer_bed=primers_bed,
+        gff_file=gff_file,
         orf_bed='orf_start.bed',
         score_cutoff=args.score_cutoff,
         reference_fasta='nCoV-2019.reference.fasta',

@@ -26,6 +26,23 @@ def get_mapped_reads(bam):
     mapped_reads = int(pysam.flagstat(bam).split("\n")[4].split(" ")[0])-int(pysam.flagstat(bam).split("\n")[2].split(" ")[0])-int(pysam.flagstat(bam).split("\n")[1].split(" ")[0])
     return mapped_reads
 
+
+def issgRNA(st,cig):
+    sc=0
+    overal=st
+    if st>15:
+        return False
+    for tup in cig:
+        if tup[0]==0:
+            sc+=tup[1]
+        else:
+            overal+=tup[1]
+            if overal>40:
+                return False
+        if sc >15:
+            return True
+    return False
+
 def check_start(bed_object,read):
     """
     find out where the read is in a bed file, in this case the ORF starts
@@ -33,15 +50,11 @@ def check_start(bed_object,read):
     :param read: pysam read object
     :return: the orf
     """
-    # reads with a pos of 0 make this fail so puting in try except works
-    # try:
-    for row in bed_object:
-        # see if read falls within ORF start location
-        if row.end >= read.pos >= row.start:
-            orf = row.name
-            break
-        else:
-            orf=None
+
+    if  issgRNA(read.reference_start,read.cigartuples[1:]):
+        orf = read.reference_name
+    else:
+        orf=None
 
         # read_feature = BedTool(read.reference_name + "\t" + str(read.pos) + "\t" + str(read.pos), from_string=True)
         # intersect = bed_object.intersect(read_feature)
@@ -138,14 +151,6 @@ def classify_read(read,score,score_cutoff,orf,amplicons):
 
     # for those that have been classified as nsgRNA - do a final check - check not at amplicon edge
     # we see a lot of false positives at read ends
-
-    if read_class == "nsgRNA":
-        primer_start = amplicons["left_primer"][2]["start"]-5
-        primer_end = amplicons["left_primer"][2]["end"]+5
-        if primer_start <= read.pos <= primer_end:
-            quality=None
-            read_class="gRNA"
-
     if quality:
         return read_class+"_"+quality
     else:
@@ -474,13 +479,19 @@ def process_reads(data):
 
 
         # we are searching for the leader sequence
-        search = 'AACCAACTTTCGATCTCTTGTAGATCTGTTCT'
-
-        # search for the sequence
-        result = search_reads(read,search)
+        result={
+        "read_id":  read.query_name,
+        "align_score": 50,
+        "read_position": read.pos,
+        "sequence": read.seq
+    }
 
         # add orf location to result
         result["read_orf"] = check_start(orf_bed_object, read)
+        search = 'AACCAACTTTCGATCTCTTGTAGATCTGTTCT'
+        if result["read_orf"]==None:
+            result['align_score'] = search_reads(read,search)
+        # search for the sequence
 
         # classify read based on prior information
         read_class = classify_read(read,result["align_score"],args.score_cutoff,result["read_orf"],amplicons)
