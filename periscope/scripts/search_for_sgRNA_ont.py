@@ -664,16 +664,16 @@ if __name__ == '__main__':
     
 
     args = parser.parse_args()
-    args.bam='COV.bam'
-    args.gff_file='../../sGenerate/script/covid.gff'
-    args.score_cutoff=50
-    args.output_prefix='COV'
-    args.sample= 'SHEF-D2BD9' 
-    args.orf_bed= '/home/baudeau/anaconda3/envs/periscope/lib/python3.7/site-packages/periscope/resources/orf_start.bed' 
-    args.primer_bed= '/home/baudeau/anaconda3/envs/periscope/lib/python3.7/site-packages/periscope/resources/artic_primers_V3.bed' 
-    args.amplicon_bed= '/home/baudeau/anaconda3/envs/periscope/lib/python3.7/site-packages/periscope/resources/artic_amplicons_V3.bed' 
-    args.tmp= '/tmp'
-    args.threads= 8
+    # args.bam='COV.bam'
+    # args.gff_file='../../sGenerate/script/covid.gff'
+    # args.score_cutoff=50
+    # args.output_prefix='COV'
+    # args.sample= 'SHEF-D2BD9' 
+    # args.orf_bed= '/home/baudeau/anaconda3/envs/periscope/lib/python3.7/site-packages/periscope/resources/orf_start.bed' 
+    # args.primer_bed= '/home/baudeau/anaconda3/envs/periscope/lib/python3.7/site-packages/periscope/resources/artic_primers_V3.bed' 
+    # args.amplicon_bed= '/home/baudeau/anaconda3/envs/periscope/lib/python3.7/site-packages/periscope/resources/artic_amplicons_V3.bed' 
+    # args.tmp= '/tmp'
+    # args.threads= 8
 
     set_tempdir(args.tmp)
 
