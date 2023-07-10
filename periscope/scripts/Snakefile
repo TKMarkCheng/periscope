@@ -17,7 +17,6 @@ rule all:
         # expand("{output_prefix}_periscope.bam.bai",output_prefix=config.get("output_prefix"))
 
 
-
 if config["technology"] == "illumina":
 
     rule align:
@@ -143,6 +142,7 @@ rule periscope:
         output_prefix = config.get("output_prefix"),
         score_cutoff = config.get("score_cutoff"),
         sample = config.get("sample"),
+        gff_loc = config.get("gff_file"),
         orf_bed = expand("{resources_dir}/{orf_bed}",resources_dir=config.get("resources_dir"),orf_bed=config.get("orf_bed")),
         primer_bed = expand("{primer_bed}",primer_bed=config.get("primer_bed")),
         amplicon_bed =expand("{amplicon_bed}",amplicon_bed=config.get("amplicon_bed")),
@@ -150,6 +150,6 @@ rule periscope:
         threads = config.get("threads")
 
     shell:
-        "python {params.search} --bam {input.bam} --score-cutoff {params.score_cutoff} --output-prefix {params.output_prefix} --score-cutoff {params.score_cutoff} --sample {params.sample} --orf-bed {params.orf_bed} --primer-bed {params.primer_bed} --amplicon-bed {params.amplicon_bed} --tmp {params.tmp} --threads {params.threads}"
+        "python {params.search} --bam {input.bam} --gff {params.gff_loc} --score-cutoff {params.score_cutoff} --output-prefix {params.output_prefix} --score-cutoff {params.score_cutoff} --sample {params.sample} --orf-bed {params.orf_bed} --primer-bed {params.primer_bed} --amplicon-bed {params.amplicon_bed} --tmp {params.tmp} --threads {params.threads}"
 
 

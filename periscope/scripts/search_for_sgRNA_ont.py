@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from periscope import __version__
-
+from BCBio import GFF
 from Bio import pairwise2
 import pysam
 import argparse
@@ -20,6 +20,44 @@ class PeriscopeRead(object):
 
 import time
 from tqdm import tqdm
+
+
+
+def correct_position(gff,read):
+    st=int(gff[read.reference_name]['begin'])
+    nd=int(gff[read.reference_name]['begin'])
+    if read.reference_name=='ORF1ab':
+        return read.reference_start,read.reference_end
+    else:
+        if read.reference_start<36:
+            nd+=read.reference_end-36
+            return st,nd
+        else:
+            st+=read.reference_start-36
+            nd+=read.reference_end-36
+            return st,nd
+
+def load_gff(gff_file):
+    in_file = args.gff_file
+
+    in_handle = open(in_file)
+    ab= GFF.parse(in_handle)
+    end=None
+    begin=None
+    gff={}
+    for rec in ab:
+        for feature in rec.features:
+            if feature.type=='gene':
+                end=feature.location.nofuzzy_end
+                if begin !=None:
+                    if begin>feature.location.nofuzzy_start:
+                        begin=feature.location.nofuzzy_start
+                    gff[str(feature.qualifiers['Name'][0])]={'begin':begin,'end':end}
+                else:
+                    gff[str(feature.qualifiers['Name'][0])]={'begin':0,'end':end}
+                begin=feature.location.nofuzzy_end
+    in_handle.close()
+    return gff
 
 def get_mapped_reads(bam):
     # find out how many mapped reads there are for bam
@@ -75,13 +113,20 @@ def search_reads(read,search):
     :return: dictionary containing the read_id, alignment score and the position of the read
     """
     align_score = pairwise2.align.localms(search, read.seq, 2, -2, -10, -.1,score_only=True)
-
+    if align_score:
+        return {
+            "read_id":  read.query_name,
+            "align_score": align_score,
+            "read_position": read.pos,
+            "sequence": read.seq,
+            'read_orf':None
+        }
     return {
-        "read_id":  read.query_name,
-        "align_score": align_score,
-        "read_position": read.pos,
-        "sequence": read.seq
-    }
+            "read_id":  read.query_name,
+            "align_score": align_score,
+            "read_position": read.pos,
+            "sequence": read.seq,
+            'read_orf':None}
 
 
 def find_amplicon(st,nd,primer_bed_object):
@@ -99,7 +144,6 @@ def find_amplicon(st,nd,primer_bed_object):
 
 
     # get the left primer
-
     left_primer = find_primer(primer_bed_object, st, '+')
 
 
@@ -137,7 +181,7 @@ def classify_read(read,score,score_cutoff,orf,amplicons):
         quality = "LLQ"
 
     #assign read_class    
-    if orf == "ORF1a" or orf == "ORF1b":
+    if orf == "ORF1a" or orf == "ORF1b" or 'ORF1ab':
         quality = None
         read_class = "gRNA"
     elif orf is not None:
@@ -441,6 +485,7 @@ def output_summarised_counts(mapped_reads,result,outfile_counts,outfile_counts_n
 def process_reads(data):
     bam = data[0]
     args = data[1]
+    gff=load_gff(args.gff_file)
     # print("processing bam:" + bam)
     # read input bam file
     inbamfile = pysam.AlignmentFile(bam, "rb")
@@ -472,7 +517,7 @@ def process_reads(data):
             continue
 
         # find the amplicon for the read
-        st,nd=read_correct_loc
+        st,nd=correct_position(gff,read)
         
         amplicons = find_amplicon(st,nd, primer_bed_object)
 
@@ -482,16 +527,19 @@ def process_reads(data):
         # we are searching for the leader sequence
         result={
         "read_id":  read.query_name,
-        "align_score": 50,
-        "read_position": read.pos,
-        "sequence": read.seq
+        "align_score": 0,
+        "read_position": st,
+        "sequence": read.seq,
+        "read_orf":None
     }
 
         # add orf location to result
         result["read_orf"] = check_start(orf_bed_object, read)
         search = 'AACCAACTTTCGATCTCTTGTAGATCTGTTCT'
         if result["read_orf"]==None:
-            result['align_score'] = search_reads(read,search)
+            result= search_reads(read,search)
+        else:
+            result["align_score"]=50
         # search for the sequence
 
         # classify read based on prior information
@@ -507,7 +555,7 @@ def process_reads(data):
         # ok now add this info to a dictionary for later processing
         if "sgRNA" in read_class:
             if result["read_orf"] is None:
-                result["read_orf"] = "novel_"+str(read.pos)
+                result["read_orf"] = "novel_"+str(st)
 
         if result["read_orf"] not in total_counts[amplicons["right_amplicon"]][read_class]:
             total_counts[amplicons["right_amplicon"]][read_class][result["read_orf"]] = []
@@ -564,6 +612,10 @@ def multiprocessing(func, args, workers):
         res = list(tqdm(ex.map(func, args),total=len(args)))
     return list(res)
 
+
+
+
+
 def main(args):
     # get a list of bams:
     import glob
@@ -595,6 +647,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='periscopre: Search for sgRNA reads in artic network SARS-CoV-2 sequencing data')
     parser.add_argument('--bam', help='bam file',default="The bam file of full artic reads")
     parser.add_argument('--output-prefix',dest='output_prefix',help="Path to the output, e.g. <DIR>/<SAMPLE_NAME>")
+    parser.add_argument('--gff',dest='gff_file',help="gff file with all gene position")
     parser.add_argument('--score-cutoff',dest='score_cutoff', help='Cut-off for alignment score of leader (50) we recommend you leave this at 50',default=50)
     parser.add_argument('--orf-bed', dest='orf_bed', help='The bed file with ORF start positions')
     parser.add_argument('--primer-bed', dest='primer_bed', help='The bed file with artic primer positions')
@@ -606,6 +659,16 @@ if __name__ == '__main__':
     
 
     args = parser.parse_args()
+    # args.bam='''{wildcards.species}.bam'''
+    # args.gff_file='../../sGenerate/script/covid.gff'
+    # args.score_cutoff=50
+    # args.output_prefix='{wildcards.species}'
+    # args.sample= 'SHEF-D2BD9' 
+    # args.orf_bed= '/home/baudeau/anaconda3/envs/periscope/lib/python3.7/site-packages/periscope/resources/orf_start.bed' 
+    # args.primer_bed= '/home/baudeau/anaconda3/envs/periscope/lib/python3.7/site-packages/periscope/resources/artic_primers_V3.bed' 
+    # args.amplicon_bed= '/home/baudeau/anaconda3/envs/periscope/lib/python3.7/site-packages/periscope/resources/artic_amplicons_V3.bed' 
+    # args.tmp= '/tmp'
+    # args.threads= 8
 
     set_tempdir(args.tmp)
 
@@ -614,7 +677,6 @@ if __name__ == '__main__':
 
     if periscope:
         print("all done", file=sys.stderr)
-
 
 
 

@@ -5,10 +5,9 @@ import argparse
 
 def main(args):
     print(args)
-    a=open(args.fasta,'r').readlines()[1]
+    a=''.join(open(args.fasta,'r').readlines()[1:]).replace('\n','')
     b=open('multi_ref.faa','w')
     in_file = args.gff_file
-
     in_handle = open(in_file)
     ab= GFF.parse(in_handle)
     end=None
