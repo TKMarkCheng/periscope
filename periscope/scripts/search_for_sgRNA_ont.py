@@ -65,11 +65,15 @@ def get_mapped_reads(bam):
     return mapped_reads
 
 
-def issgRNA(st,cig):
+def issgRNA(st,cig,name):
     sc=0
     overal=st
-    if st>15:
+    if name=='ORF1ab' and st<70:
+        return True
+    if st>20:
         return False
+    if cig[0][0]!=0:
+        cig=cig[1:]
     for tup in cig:
         if tup[0]==0:
             sc+=tup[1]
@@ -89,7 +93,7 @@ def check_start(bed_object,read):
     :return: the orf
     """
 
-    if  issgRNA(read.reference_start,read.cigartuples[1:]):
+    if  issgRNA(read.reference_start,read.cigartuples,read.reference_name):
         orf = read.reference_name
     else:
         orf=None
@@ -112,8 +116,9 @@ def search_reads(read,search):
     :param search: DNA search string e.g. ATGTGCTTGATGC
     :return: dictionary containing the read_id, alignment score and the position of the read
     """
-    align_score = pairwise2.align.localms(search, read.seq, 2, -2, -10, -.1,score_only=True)
-    if align_score:
+    align_score = pairwise2.align.localms(search, read.seq[0:max(read.qstart+10,40)], 2, -2, -10, -.1,score_only=True)
+    if align_score >30:
+        a=2
         return {
             "read_id":  read.query_name,
             "align_score": align_score,
@@ -181,7 +186,7 @@ def classify_read(read,score,score_cutoff,orf,amplicons):
         quality = "LLQ"
 
     #assign read_class    
-    if orf == "ORF1a" or orf == "ORF1b" or 'ORF1ab':
+    if orf == "ORF1a" or orf == "ORF1b" or orf=='ORF1ab':
         quality = None
         read_class = "gRNA"
     elif orf is not None:
@@ -539,7 +544,7 @@ def process_reads(data):
         if result["read_orf"]==None:
             result= search_reads(read,search)
         else:
-            result["align_score"]=50
+            result["align_score"]=55
         # search for the sequence
 
         # classify read based on prior information
@@ -659,16 +664,16 @@ if __name__ == '__main__':
     
 
     args = parser.parse_args()
-    # args.bam='''{wildcards.species}.bam'''
-    # args.gff_file='../../sGenerate/script/covid.gff'
-    # args.score_cutoff=50
-    # args.output_prefix='{wildcards.species}'
-    # args.sample= 'SHEF-D2BD9' 
-    # args.orf_bed= '/home/baudeau/anaconda3/envs/periscope/lib/python3.7/site-packages/periscope/resources/orf_start.bed' 
-    # args.primer_bed= '/home/baudeau/anaconda3/envs/periscope/lib/python3.7/site-packages/periscope/resources/artic_primers_V3.bed' 
-    # args.amplicon_bed= '/home/baudeau/anaconda3/envs/periscope/lib/python3.7/site-packages/periscope/resources/artic_amplicons_V3.bed' 
-    # args.tmp= '/tmp'
-    # args.threads= 8
+    args.bam='COV.bam'
+    args.gff_file='../../sGenerate/script/covid.gff'
+    args.score_cutoff=50
+    args.output_prefix='COV'
+    args.sample= 'SHEF-D2BD9' 
+    args.orf_bed= '/home/baudeau/anaconda3/envs/periscope/lib/python3.7/site-packages/periscope/resources/orf_start.bed' 
+    args.primer_bed= '/home/baudeau/anaconda3/envs/periscope/lib/python3.7/site-packages/periscope/resources/artic_primers_V3.bed' 
+    args.amplicon_bed= '/home/baudeau/anaconda3/envs/periscope/lib/python3.7/site-packages/periscope/resources/artic_amplicons_V3.bed' 
+    args.tmp= '/tmp'
+    args.threads= 8
 
     set_tempdir(args.tmp)
 
