@@ -38,7 +38,10 @@ elif config["technology"] == "ont":
         params:
             reference = expand("{resources_dir}/{reference_fasta}",resources_dir=config.get("resources_dir"),reference_fasta=config.get("reference_fasta")),
             fastq_dir = config.get("gff_file"),
+            search = expand("{scripts_dir}/create_multi_reference.py",scripts_dir=config.get("scripts_dir")),
+
         shell:
+            "python {params.search} --fasta {params.reference} --gff {params.fastq_dir}"
 
     if config.get('fastq_dir'):
         if config.get('gzipped') == True:

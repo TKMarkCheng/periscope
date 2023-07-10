@@ -84,7 +84,7 @@ def search_reads(read,search):
     }
 
 
-def find_amplicon(read,primer_bed_object):
+def find_amplicon(st,nd,primer_bed_object):
     """
     use artic code to find primers called "find_primers"
     returns (1, 1, {'chrom': 'MN908947.3', 'start': 21357, 'end': 21386, 'Primer_ID': 'nCoV-2019_71_LEFT', 'PoolName': 'nCoV-2019_1', 'direction': '+'})
@@ -100,11 +100,11 @@ def find_amplicon(read,primer_bed_object):
 
     # get the left primer
 
-    left_primer = find_primer(primer_bed_object, read.reference_start, '+')
+    left_primer = find_primer(primer_bed_object, st, '+')
 
 
     # get the right primer
-    right_primer = find_primer(primer_bed_object, read.reference_end, '-')
+    right_primer = find_primer(primer_bed_object, nd, '-')
 
 
     # get the left primer amplicon (we don't actually use this)
@@ -472,8 +472,9 @@ def process_reads(data):
             continue
 
         # find the amplicon for the read
-
-        amplicons = find_amplicon(read, primer_bed_object)
+        st,nd=read_correct_loc
+        
+        amplicons = find_amplicon(st,nd, primer_bed_object)
 
         total_counts[amplicons["right_amplicon"]]["total_reads"] += 1
 
@@ -602,11 +603,12 @@ if __name__ == '__main__':
     parser.add_argument('--tmp',help="pybedtools likes to write to /tmp if you want to write somewhere else define it here",default="/tmp")
     parser.add_argument('--progress', help='display progress bar', default="")
     parser.add_argument('--threads', help='threads used for multi-processing', default=1)
-
+    
 
     args = parser.parse_args()
 
     set_tempdir(args.tmp)
+
 
     periscope = main(args)
 

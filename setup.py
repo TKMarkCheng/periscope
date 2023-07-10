@@ -8,7 +8,8 @@ setup(
     scripts=['periscope/scripts/Snakefile',
              'periscope/scripts/search_for_sgRNA_ont.py',
              'periscope/scripts/search_for_sgRNA_illumina.py',
-             'periscope/scripts/variant_expression.py'
+             'periscope/scripts/variant_expression.py',
+             'periscope/scripts/create_multi_reference.py'
              ],
     package_dir={'periscope': 'periscope'},
     package_data={'periscope':['resources/*']},

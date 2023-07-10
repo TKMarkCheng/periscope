@@ -11,6 +11,7 @@ def main():
 
     parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter,description='periscope: Search for sgRNA reads in artic network SARS-CoV-2 sequencing data. A tool from Sheffield Bioinformatics Core/Florey Institute',usage='''periscope [options]''')
     parser.add_argument('--fastq-dir',dest='fastq_dir', help='the folder containing the raw pass demultiplexed fastqs from the artic protocol, if this is illumina data the tool expects a file labelled R1 and R2 in this dir.', default=None,required=False)
+    parser.add_argument('--gff', help='gff file',default=None)
     parser.add_argument('--fastq',dest='fastq',help='if you already have a single fastq then you can use this flag instead, if illumina paired end separate fastq by space', nargs='+',required=False,default=[])
     parser.add_argument('--output-prefix',dest='output_prefix', help='Prefix of the output file',default="test")
     parser.add_argument('--score-cutoff',dest='score_cutoff', help='Cut-off for alignment score of leader (50)',default=50)
@@ -24,7 +25,7 @@ def main():
                         help="pybedtools likes to write to /tmp if you want to write somewhere else define it here",
                         default="/tmp")
     parser.add_argument('--sample', help='sample id', default="SHEF-D2BD9")
-    parser.add_argument('--gff', help='gff file',default=None)
+   
     parser.add_argument('--technology', help='the sequencing technology used, either:\n*ont\n*illumina', default="ont")
 
     print("""

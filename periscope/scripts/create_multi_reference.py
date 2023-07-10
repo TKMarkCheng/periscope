@@ -1,11 +1,13 @@
+from periscope import __version__
 from BCBio import GFF
 import pysam
 import argparse
 
 def main(args):
+    print(args)
     a=open(args.fasta,'r').readlines()[1]
     b=open('multi_ref.faa','w')
-    in_file = args.gff
+    in_file = args.gff_file
 
     in_handle = open(in_file)
     ab= GFF.parse(in_handle)
