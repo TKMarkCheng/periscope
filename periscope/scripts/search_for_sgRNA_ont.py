@@ -165,7 +165,7 @@ def find_amplicon(st,nd,primer_bed_object):
 
     return dict(left_amplicon=left_amplicon,left_primer=left_primer,right_amplicon=right_amplicon,right_primer=right_primer)
 
-def classify_read(read,score,score_cutoff,orf,amplicons):
+def classify_read(read,score,score_cutoff,orf,amplicons,st):
     """
     classify read based on leader alignment score and other metrics
     :param score: the score
@@ -203,7 +203,7 @@ def classify_read(read,score,score_cutoff,orf,amplicons):
     if read_class == "nsgRNA":
         primer_start = amplicons["left_primer"][2]["start"]-5
         primer_end = amplicons["left_primer"][2]["end"]+5
-        if primer_start <= read.pos <= primer_end:
+        if primer_start <= st <= primer_end:
             quality=None
             read_class="gRNA"
     if quality:
@@ -554,7 +554,7 @@ def process_reads(data):
         # search for the sequence
 
         # classify read based on prior information
-        read_class = classify_read(read,result["align_score"],args.score_cutoff,result["read_orf"],amplicons)
+        read_class = classify_read(read,result["align_score"],args.score_cutoff,result["read_orf"],amplicons,st)
 
         # store the attributes we have calculated with the read as tags
         read.set_tag('XS', result["align_score"])
