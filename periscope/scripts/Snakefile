@@ -89,7 +89,7 @@ elif config["technology"] == "ont":
                 reference = expand("{resources_dir}/{reference_fasta}",resources_dir=config.get("resources_dir"),reference_fasta=config.get("reference_fasta")),
                 threads = config.get("mapping_threads")
             shell:
-                "minimap2 -ax map-ont -k 15 -t {params.threads} {input.reference} {input.fastq} | samtools sort - | samtools view -bh - > {output}"
+                "minimap2 -ax map-ont -k 8 -w 1 -t {params.threads} {input.reference} {input.fastq} | samtools sort - | samtools view -bh - > {output}"
 
 # index the bam file
 rule index:
