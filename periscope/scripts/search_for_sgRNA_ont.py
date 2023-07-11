@@ -200,6 +200,12 @@ def classify_read(read,score,score_cutoff,orf,amplicons):
 
     # for those that have been classified as nsgRNA - do a final check - check not at amplicon edge
     # we see a lot of false positives at read ends
+    if read_class == "nsgRNA":
+        primer_start = amplicons["left_primer"][2]["start"]-5
+        primer_end = amplicons["left_primer"][2]["end"]+5
+        if primer_start <= read.pos <= primer_end:
+            quality=None
+            read_class="gRNA"
     if quality:
         return read_class+"_"+quality
     else:
