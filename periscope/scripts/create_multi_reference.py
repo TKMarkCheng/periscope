@@ -23,9 +23,9 @@ def main(args):
                 if begin !=None:
                     if begin>feature.location.nofuzzy_start:
                         begin=feature.location.nofuzzy_start
-                    b.write(search+a[int(begin)-4:int(end)])
+                    b.write(search+a[int(begin)-4:min(int(end)+400,len(a))])
                 else:
-                    b.write(a[0:int(end)])
+                    b.write(a[0:int(end)+400])
                 b.write('\n')
                 begin=feature.location.nofuzzy_end
     in_handle.close()
