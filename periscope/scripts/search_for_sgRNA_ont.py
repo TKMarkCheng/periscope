@@ -115,14 +115,13 @@ def search_reads(read,search):
     :return: dictionary containing the read_id, alignment score and the position of the read
     """
     align_score = pairwise2.align.localms(search, read.seq[0:max(read.qstart+10,40)], 2, -2, -10, -.1,score_only=True)
-    if align_score >30:
-        a=2
+    if align_score >30 and read.reference_start < 36:
         return {
             "read_id":  read.query_name,
             "align_score": align_score,
             "read_position": read.pos,
             "sequence": read.seq,
-            'read_orf':None
+            'read_orf':read.reference_name
         }
     return {
             "read_id":  read.query_name,
