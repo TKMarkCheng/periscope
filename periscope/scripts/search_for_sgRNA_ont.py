@@ -91,7 +91,7 @@ def check_start(bed_object,read):
     :return: the orf
     """
 
-    if  issgRNA(read.reference_start,read.cigartuples,read.reference_name):
+    if  issgRNA(read.reference_start,read.get_reference_positions(full_length=True)[read.qstart:read.qstart+50],read.reference_name):
         orf = read.reference_name
     else:
         orf=None
