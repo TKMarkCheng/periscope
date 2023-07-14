@@ -65,24 +65,22 @@ def get_mapped_reads(bam):
     return mapped_reads
 
 
-def issgRNA(st,cig,name):
+def issgRNA(st,refpos,name):
     sc=0
     overal=st
     if name=='ORF1ab' and st<70:
         return True
-    if st>20:
+    if st>(0.7*36):
         return False
-    if cig[0][0]!=0:
-        cig=cig[1:]
-    for tup in cig:
-        if tup[0]==0:
-            sc+=tup[1]
-        else:
-            overal+=tup[1]
-            if overal>40:
-                return False
-        if sc >15:
-            return True
+    ct=0
+    for pos in refpos:
+        if pos:
+            if pos < 36:
+                ct+=1
+            if pos>36:
+                break
+    if ct>(0.3*36):
+        return True
     return False
 
 def check_start(bed_object,read):
