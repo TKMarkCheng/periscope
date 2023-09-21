@@ -1,9 +1,9 @@
-![alt text](https://github.com/sheffield-bioinformatics-core/periscope/blob/master/periscope.png "periscope")
 
-# periscope
 
+# periscope_multi
+
+A modified version of periscope : https://github.com/sheffield-bioinformatics-core/periscope
 A tool to quantify sub-genomic RNA (sgRNA) expression in SARS-CoV-2 artic network amplicon sequencing data.
-Initial classification of reads into sub-genomic or not based on https://www.biorxiv.org/content/10.1101/2020.04.10.029454v1.abstract
 
 # Citing
 
@@ -13,8 +13,7 @@ https://www.biorxiv.org/content/10.1101/2020.07.01.181867v1
 
 
 # Requirements
-periscope runs on MacOS and Linux. We have also confirmed the tool runs under windows 10 unix subsystem.
-
+periscope runs Linux. 
 
 * conda
 * Your raw fastq files from the artic protocol
@@ -22,7 +21,7 @@ periscope runs on MacOS and Linux. We have also confirmed the tool runs under wi
 
 # Installation
 ```
-git clone https://github.com/sheffield-bioinformatics-core/periscope.git && cd periscope
+git clone https://github.com/ThomasBaudeau/periscope_multifasta && cd periscope
 conda env create -f environment.yml
 conda activate periscope
 pip install .
@@ -42,7 +41,8 @@ periscope \
     --artic-primers <ASSAY_VERSION; V1,V2,V3,V4,2kb,midnight> \
     --resources <PATH_TO_PERISCOPE_RESOURCES_FOLDER> \
     --technology <SEQUECNING TECH; ont or illumina> \
-    --threads <THREADS> 
+    --threads <THREADS>
+    --gff <PATH_OF_GFF_FILE>
 ```
 
 For custom primers use `--artic-primers` argument followed by:
@@ -61,15 +61,6 @@ So if you put `./SAMPLE1` for this argument outputs will go in the current worki
 
 If you have issues with `tmp` this is because pybedtools writes there. v0.0.3 contains a fix, and you can also specify `--tmp` and redirect this somewhere else
 
-# Pipeline overview
-
-![alt text](https://github.com/sheffield-bioinformatics-core/periscope/blob/master/workflow.png "periscope")<!-- .element height="10%" width="10%" -->
-__Figure 1. Workflow Overview__ 
-
-## Pre-Processing
-
-* Collect demutiplexed pass fastqs
-* Remap RAW artic protocol reads
 
 ## Counting
 
@@ -84,9 +75,6 @@ _Our median read count is ~250k and this will take around 25minutes_
 * Classify read (see Figure 2)
 * Normalise a few ways
 
-![alt text](https://github.com/sheffield-bioinformatics-core/periscope/blob/master/read_classification.png "periscope")<!-- .element height="10%" width="10%" -->
-__Figure 2. Read Classification Algorithm__ 
-
 ## Normalisation
 
 ### ONT Data
@@ -99,16 +87,6 @@ We have taken two approaches, a global normalisation based on mapped read counts
     * There are things you need to note here:
         * multiple amplicons can contribute to reads which support the same sgRNA
         * we normalise on a per amplicon level and then sum these to get an overall normalised count
-
-### Illumina Data
-
-Ilumina data is still a work in progress, as of v0.0.8 you can get raw sgRNA counts and counts normalised to the average coverage around the ORF TRS start site.
-
-It is worth noting this follows a slightly different algorithm, relying instead on soft clipping. The ratoinale here is that illumina data is more accurate therefore we
-can detect shorter matches to the leader.
-
-- 
-
 
 ## Outputs:
 
