@@ -23,7 +23,7 @@ periscope runs Linux.
 ```
 git clone https://github.com/ThomasBaudeau/periscope_multifasta && cd periscope_multifasta
 conda env create -f environment.yml
-conda activate periscope
+conda activate periscope_multifasta
 pip install .
 ```
 
