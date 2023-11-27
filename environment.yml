@@ -1,4 +1,4 @@
-name: periscope
+name: periscope_multifasta
 channels:
   - conda-forge
   - bioconda
