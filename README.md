@@ -17,7 +17,7 @@ periscope runs Linux.
 
 * conda
 * Your raw fastq files from the artic protocol
-* Install periscope
+* Install periscope_multifasta
 
 # Installation
 ```
