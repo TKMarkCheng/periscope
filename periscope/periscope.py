@@ -25,7 +25,7 @@ def main():
                         help="pybedtools likes to write to /tmp if you want to write somewhere else define it here",
                         default="/tmp")
     parser.add_argument('--sample', help='sample id', default="SHEF-D2BD9")
-   
+    parser.add_argument('--tool', help='tool used for mapping', default="minimap")
     parser.add_argument('--technology', help='the sequencing technology used, either:\n*ont\n*illumina', default="ont")
 
     print("""
@@ -167,7 +167,8 @@ oso/.`.````..-+ssss+-`..```..-omhss+-` .ms``.-/oso
         threads=args.threads,
         mapping_threads=mapping_threads,
         tmp=args.tmp,
-        technology=args.technology
+        technology=args.technology,
+        tool=args.tools
     )
 
     print(config['threads'], config['mapping_threads'])
