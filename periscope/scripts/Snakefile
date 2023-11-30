@@ -72,7 +72,7 @@ elif config["technology"] == "ont":
                     merged_fastq = expand("{output_prefix}.{extension}",output_prefix=config.get("output_prefix"),extension=config.get("extension")),
                     reference='multi_ref.faa'
                 output:
-                expand("{output_prefix}.bam",output_prefix=config.get("output_prefix"))
+                    expand("{output_prefix}.bam",output_prefix=config.get("output_prefix"))
                 params:
                     reference = expand("{resources_dir}/{reference_fasta}",resources_dir=config.get("resources_dir"),reference_fasta=config.get("reference_fasta")),
                     threads = config.get("mapping_threads")
