@@ -89,7 +89,7 @@ elif config["technology"] == "ont":
                     reference = expand("{resources_dir}/{reference_fasta}",resources_dir=config.get("resources_dir"),reference_fasta=config.get("reference_fasta")),
                     threads = config.get("mapping_threads")
                 shell:
-                    "minimap2 -ax map-ont -k 15 -t {params.threads} {params.reference} {input.merged_fastq} | samtools sort - | samtools view -bh - > {output};rm {input.reference}"
+                    "graphmap align -x sensitive -r {params.reference} -d {input.merged_fastq} | samtools sort - | samtools view -bh - > {output};rm {input.reference}"
 
 
         elif config['tool']=='blasr':
@@ -103,19 +103,45 @@ elif config["technology"] == "ont":
                     reference = expand("{resources_dir}/{reference_fasta}",resources_dir=config.get("resources_dir"),reference_fasta=config.get("reference_fasta")),
                     threads = config.get("mapping_threads")
                 shell:
-                    "minimap2 -ax map-ont -k 15 -t {params.threads} {params.reference} {input.merged_fastq} | samtools sort - | samtools view -bh - > {output};rm {input.reference}"
+                     "blasr {input.merged_fastq} {params.reference} -k 5 -w 1 --sam -m 1 --noPrintUnalignedSeqs | samtools sort - | samtools view -bh - > {output};rm {input.reference}"
     else:
-        rule align:
-            input:
-                fastq = config.get("fastq"),
-                reference='multi_ref.faa'
-            output:
-                expand("{output_prefix}.bam",output_prefix=config.get("output_prefix"))
-            params:
-                reference = expand("{resources_dir}/{reference_fasta}",resources_dir=config.get("resources_dir"),reference_fasta=config.get("reference_fasta")),
-                threads = config.get("mapping_threads")
-            shell:
-                "minimap2 -ax map-ont -k 15 -t {params.threads} {input.reference} {input.fastq} | samtools sort - | samtools view -bh - > {output};rm {input.reference}"
+        if config['tool']=='minimap':
+            rule align:
+                input:
+                    fastq = config.get("fastq"),
+                    reference='multi_ref.faa'
+                output:
+                    expand("{output_prefix}.bam",output_prefix=config.get("output_prefix"))
+                params:
+                    reference = expand("{resources_dir}/{reference_fasta}",resources_dir=config.get("resources_dir"),reference_fasta=config.get("reference_fasta")),
+                    threads = config.get("mapping_threads")
+                shell:
+                    "minimap2 -ax map-ont -k 15 -t {params.threads} {input.reference} {input.fastq} | samtools sort - | samtools view -bh - > {output};rm {input.reference}"
+        elif config['tool']=='graphmap':
+            rule align:
+                input:
+                    fastq = config.get("fastq"),
+                    reference='multi_ref.faa'
+                output:
+                    expand("{output_prefix}.bam",output_prefix=config.get("output_prefix"))
+                params:
+                    reference = expand("{resources_dir}/{reference_fasta}",resources_dir=config.get("resources_dir"),reference_fasta=config.get("reference_fasta")),
+                    threads = config.get("mapping_threads")
+                shell:
+                    "graphmap align -x sensitive -r {input.reference} -d {input.fastq} | samtools sort - | samtools view -bh - > {output};rm {input.reference}"
+        elif config['tool']=='blasr':
+            rule align:
+                input:
+                    fastq = config.get("fastq"),
+                    reference='multi_ref.faa'
+                output:
+                    expand("{output_prefix}.bam",output_prefix=config.get("output_prefix"))
+                params:
+                    reference = expand("{resources_dir}/{reference_fasta}",resources_dir=config.get("resources_dir"),reference_fasta=config.get("reference_fasta")),
+                    threads = config.get("mapping_threads")
+                shell:
+                    "blasr {input.fastq} {input.reference} -k 5 -w 1 --sam -m 1 --noPrintUnalignedSeqs | samtools sort - | samtools view -bh - > {output};rm {input.reference}"
+                  
 
 # index the bam file
 rule index:
