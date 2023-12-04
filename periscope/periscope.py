@@ -27,6 +27,8 @@ def main():
     parser.add_argument('--sample', help='sample id', default="SHEF-D2BD9")
     parser.add_argument('--tool', help='tool used for mapping', default="minimap")
     parser.add_argument('--technology', help='the sequencing technology used, either:\n*ont\n*illumina', default="ont")
+    parser.add_argument('--para', help='paramameters used for minimap2', default="-k 15")
+
 
     print("""
              /yddmmmddds:                         
@@ -168,7 +170,8 @@ oso/.`.````..-+ssss+-`..```..-omhss+-` .ms``.-/oso
         mapping_threads=mapping_threads,
         tmp=args.tmp,
         technology=args.technology,
-        tool=args.tool
+        tool=args.tool,
+        para=args.para
     )
 
     print(config['threads'], config['mapping_threads'])
