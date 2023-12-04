@@ -78,7 +78,7 @@ elif config["technology"] == "ont":
                     threads = config.get("mapping_threads"),
                     para=config.get('para')
                 shell:
-                    "minimap2 -ax map-ont {params.para} -t {params.threads} {input.reference} {input.merged_fastq} | samtools sort - | samtools view -bh - > {output};rm {input.reference}"
+                    "minimap2 -ax map-ont {params.para} -t {params.threads} {params.reference} {input.merged_fastq} | samtools sort - | samtools view -bh - > {output};rm {input.reference}"
         elif config['tool']=='graphmap':
             rule align:
                 input:
@@ -130,7 +130,7 @@ elif config["technology"] == "ont":
                     reference = expand("{resources_dir}/{reference_fasta}",resources_dir=config.get("resources_dir"),reference_fasta=config.get("reference_fasta")),
                     threads = config.get("mapping_threads")
                 shell:
-                    "graphmap align -x sensitive -r {params.reference} -d {input.fastq} | samtools sort - | samtools view -bh - > {output};rm {input.reference}"
+                    "cat {params.reference};graphmap align -x sensitive -r {params.reference} -d {input.fastq} | samtools sort - | samtools view -bh - > {output};rm {input.reference}"
         elif config['tool']=='blasr':
             rule align:
                 input:
