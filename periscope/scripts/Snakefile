@@ -130,7 +130,7 @@ elif config["technology"] == "ont":
                     reference = expand("{resources_dir}/{reference_fasta}",resources_dir=config.get("resources_dir"),reference_fasta=config.get("reference_fasta")),
                     threads = config.get("mapping_threads")
                 shell:
-                    "cat {params.reference};graphmap align -x sensitive -r {params.reference} -d {input.fastq} | samtools sort - | samtools view -bh - > {output};rm {input.reference}"
+                    "graphmap align -x sensitive -r {params.reference} -d {input.fastq} | samtools sort - | samtools view -bh - > {output};rm {input.reference}"
         elif config['tool']=='blasr':
             rule align:
                 input:
@@ -179,31 +179,60 @@ rule reheader:
     shell:
         "for i in `ls {params.output_prefix}.split*`; do cat {input.header} $i > $i.sam; done && rm {params.output_prefix}*.split.??"
 
-#run periscope
-rule periscope:
-    input:
-        split=expand("{output_prefix}.split.00.sam",output_prefix=config.get("output_prefix")),
-        bam = expand("{output_prefix}.bam",output_prefix=config.get("output_prefix")),
-        bai = expand("{output_prefix}.bam.bai",output_prefix=config.get("output_prefix"))
-    output:
-        # expand("{output_prefix}_periscope.bam",output_prefix=config.get("output_prefix")),
-        expand("{output_prefix}_periscope_counts.csv",output_prefix=config.get("output_prefix")),
-        expand("{output_prefix}_periscope_amplicons.csv",output_prefix=config.get("output_prefix")),
-        expand("{output_prefix}_periscope_novel_counts.csv",output_prefix=config.get("output_prefix"))
-        # expand("{output_prefix}_periscope.bam.bai",output_prefix=config.get("output_prefix"))
-    params:
-        search = expand("{scripts_dir}/search_for_sgRNA_{technology}.py",scripts_dir=config.get("scripts_dir"),technology=config.get("technology")),
-        output_prefix = config.get("output_prefix"),
-        score_cutoff = config.get("score_cutoff"),
-        sample = config.get("sample"),
-        gff_loc = config.get("gff_file"),
-        orf_bed = expand("{resources_dir}/{orf_bed}",resources_dir=config.get("resources_dir"),orf_bed=config.get("orf_bed")),
-        primer_bed = expand("{primer_bed}",primer_bed=config.get("primer_bed")),
-        amplicon_bed =expand("{amplicon_bed}",amplicon_bed=config.get("amplicon_bed")),
-        tmp = config.get("tmp"),
-        threads = config.get("threads")
+if not config['tool']=='minimap' and not config["technology"] == "illumina":
+    rule periscope:
+        input:
+            split=expand("{output_prefix}.split.00.sam",output_prefix=config.get("output_prefix")),
+            bam = expand("{output_prefix}.bam",output_prefix=config.get("output_prefix")),
+            bai = expand("{output_prefix}.bam.bai",output_prefix=config.get("output_prefix"))
+        output:
+            # expand("{output_prefix}_periscope.bam",output_prefix=config.get("output_prefix")),
+            expand("{output_prefix}_periscope_counts.csv",output_prefix=config.get("output_prefix")),
+            expand("{output_prefix}_periscope_amplicons.csv",output_prefix=config.get("output_prefix")),
+            expand("{output_prefix}_periscope_novel_counts.csv",output_prefix=config.get("output_prefix"))
+            # expand("{output_prefix}_periscope.bam.bai",output_prefix=config.get("output_prefix"))
+        params:
+            search = expand("{scripts_dir}/search_old.py",scripts_dir=config.get("scripts_dir"),technology=config.get("technology")),
+            output_prefix = config.get("output_prefix"),
+            score_cutoff = config.get("score_cutoff"),
+            sample = config.get("sample"),
+            orf_bed = expand("{resources_dir}/{orf_bed}",resources_dir=config.get("resources_dir"),orf_bed=config.get("orf_bed")),
+            primer_bed = expand("{primer_bed}",primer_bed=config.get("primer_bed")),
+            amplicon_bed =expand("{amplicon_bed}",amplicon_bed=config.get("amplicon_bed")),
+            tmp = config.get("tmp"),
+            threads = config.get("threads")
 
-    shell:
-        "python {params.search} --bam {input.bam} --gff {params.gff_loc} --score-cutoff {params.score_cutoff} --output-prefix {params.output_prefix} --score-cutoff {params.score_cutoff} --sample {params.sample} --orf-bed {params.orf_bed} --primer-bed {params.primer_bed} --amplicon-bed {params.amplicon_bed} --tmp {params.tmp} --threads {params.threads}"
+        shell:
+           "python {params.search} --bam {input.bam} --score-cutoff {params.score_cutoff} --output-prefix {params.output_prefix} --score-cutoff {params.score_cutoff} --sample {params.sample} --orf-bed {params.orf_bed} --primer-bed {params.primer_bed} --amplicon-bed {params.amplicon_bed} --tmp {params.tmp} --threads {params.threads}"
+
+
+
+#run periscope
+else:
+    rule periscope:
+        input:
+            split=expand("{output_prefix}.split.00.sam",output_prefix=config.get("output_prefix")),
+            bam = expand("{output_prefix}.bam",output_prefix=config.get("output_prefix")),
+            bai = expand("{output_prefix}.bam.bai",output_prefix=config.get("output_prefix"))
+        output:
+            # expand("{output_prefix}_periscope.bam",output_prefix=config.get("output_prefix")),
+            expand("{output_prefix}_periscope_counts.csv",output_prefix=config.get("output_prefix")),
+            expand("{output_prefix}_periscope_amplicons.csv",output_prefix=config.get("output_prefix")),
+            expand("{output_prefix}_periscope_novel_counts.csv",output_prefix=config.get("output_prefix"))
+            # expand("{output_prefix}_periscope.bam.bai",output_prefix=config.get("output_prefix"))
+        params:
+            search = expand("{scripts_dir}/search_for_sgRNA_{technology}.py",scripts_dir=config.get("scripts_dir"),technology=config.get("technology")),
+            output_prefix = config.get("output_prefix"),
+            score_cutoff = config.get("score_cutoff"),
+            sample = config.get("sample"),
+            gff_loc = config.get("gff_file"),
+            orf_bed = expand("{resources_dir}/{orf_bed}",resources_dir=config.get("resources_dir"),orf_bed=config.get("orf_bed")),
+            primer_bed = expand("{primer_bed}",primer_bed=config.get("primer_bed")),
+            amplicon_bed =expand("{amplicon_bed}",amplicon_bed=config.get("amplicon_bed")),
+            tmp = config.get("tmp"),
+            threads = config.get("threads")
+
+        shell:
+            "python {params.search} --bam {input.bam} --gff {params.gff_loc} --score-cutoff {params.score_cutoff} --output-prefix {params.output_prefix} --score-cutoff {params.score_cutoff} --sample {params.sample} --orf-bed {params.orf_bed} --primer-bed {params.primer_bed} --amplicon-bed {params.amplicon_bed} --tmp {params.tmp} --threads {params.threads}"
 
 
