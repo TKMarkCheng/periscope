@@ -9,7 +9,8 @@ setup(
              'periscope/scripts/search_for_sgRNA_ont.py',
              'periscope/scripts/search_for_sgRNA_illumina.py',
              'periscope/scripts/variant_expression.py',
-             'periscope/scripts/create_multi_reference.py'
+             'periscope/scripts/create_multi_reference.py',
+             'periscope/scripts/search_old.py'
              ],
     package_dir={'periscope': 'periscope'},
     package_data={'periscope':['resources/*']},
