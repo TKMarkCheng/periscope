@@ -132,7 +132,7 @@ elif config["technology"] == "ont":
                     threads = config.get("mapping_threads")
                 shell:
                     "graphmap align -x sensitive -k#5#-A#7#--freq-percentile#1.0 -r {params.reference} -d {input.fastq} | samtools sort - | samtools view -bh - > {output};rm {input.reference}"
-        elif config['tool']=='blasr':
+        elif config['tool']=='bwa':
             rule align:
                 input:
                     fastq = config.get("fastq"),
