@@ -143,7 +143,7 @@ elif config["technology"] == "ont":
                     reference = expand("{resources_dir}/{reference_fasta}",resources_dir=config.get("resources_dir"),reference_fasta=config.get("reference_fasta")),
                     threads = config.get("mapping_threads")
                 shell:
-                    "bwa index {input.ref};bwa mem -Y -k#7#-W#10 -t {params.threads} {input.reference} {input.fastq} | samtools sort - | samtools view -bh - > {output}"
+                    "bwa index {input.reference};bwa mem -Y -k#7#-W#10 -t {params.threads} {input.reference} {input.fastq} | samtools sort - | samtools view -bh - > {output}"
                   
 
 # index the bam file
