@@ -76,9 +76,8 @@ elif config["technology"] == "ont":
                 params:
                     reference = expand("{resources_dir}/{reference_fasta}",resources_dir=config.get("resources_dir"),reference_fasta=config.get("reference_fasta")),
                     threads = config.get("mapping_threads"),
-                    para=config.get('para')
                 shell:
-                    "minimap2 -ax map-ont {params.para} -t {params.threads} {params.reference} {input.merged_fastq} | samtools sort - | samtools view -bh - > {output};rm {input.reference}"
+                    "minimap2 -ax map-ont -k 15 -t {params.threads} {params.reference} {input.merged_fastq} | samtools sort - | samtools view -bh - > {output};rm {input.reference}"
         elif config['tool']=='graphmap':
             rule align:
                 input:
@@ -103,7 +102,6 @@ elif config["technology"] == "ont":
                 params:
                     reference = expand("{resources_dir}/{reference_fasta}",resources_dir=config.get("resources_dir"),reference_fasta=config.get("reference_fasta")),
                     threads = config.get("mapping_threads"),
-                    para=config.get('para')
                 shell:
                     "bwa index {input.ref}; bwa mem -Y -t {params.threads} {input.reference} {input.merged_fastq} | samtools sort - | samtools view -bh - > {output}"
     else:
@@ -117,9 +115,8 @@ elif config["technology"] == "ont":
                 params:
                     reference = expand("{resources_dir}/{reference_fasta}",resources_dir=config.get("resources_dir"),reference_fasta=config.get("reference_fasta")),
                     threads = config.get("mapping_threads"),
-                    para=config.get('para')
                 shell:
-                    "minimap2 -ax map-ont {params.para} -t {params.threads} {input.reference} {input.fastq} | samtools sort - | samtools view -bh - > {output};rm {input.reference}"
+                    "minimap2 -ax map-ont -k 15 -t {params.threads} {input.reference} {input.fastq} | samtools sort - | samtools view -bh - > {output};rm {input.reference}"
         elif config['tool']=='graphmap':
             rule align:
                 input:
@@ -143,7 +140,7 @@ elif config["technology"] == "ont":
                     reference = expand("{resources_dir}/{reference_fasta}",resources_dir=config.get("resources_dir"),reference_fasta=config.get("reference_fasta")),
                     threads = config.get("mapping_threads")
                 shell:
-                    "bwa index {input.reference};bwa mem -Y -k#7#-W#10 -t {params.threads} {input.reference} {input.fastq} | samtools sort - | samtools view -bh - > {output}"
+                    "bwa index {input.reference};bwa mem -Y -k#5#-W#7 -t {params.threads} {input.reference} {input.fastq} | samtools sort - | samtools view -bh - > {output}"
                   
 
 # index the bam file
