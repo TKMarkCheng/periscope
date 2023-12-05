@@ -128,7 +128,7 @@ elif config["technology"] == "ont":
                     reference = expand("{resources_dir}/{reference_fasta}",resources_dir=config.get("resources_dir"),reference_fasta=config.get("reference_fasta")),
                     threads = config.get("mapping_threads")
                 shell:
-                    "graphmap align -x sensitive -k#5#-A#7#--freq-percentile#1.0 -r {params.reference} -d {input.fastq} | samtools sort - | samtools view -bh - > {output};rm {input.reference}"
+                    "graphmap align -x sensitive -k 5 -A 7 --freq-percentile 1.0 -r {params.reference} -d {input.fastq} | samtools sort - | samtools view -bh - > {output};rm {input.reference}"
         elif config['tool']=='bwa':
             rule align:
                 input:
