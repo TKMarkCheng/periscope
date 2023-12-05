@@ -171,7 +171,6 @@ oso/.`.````..-+ssss+-`..```..-omhss+-` .ms``.-/oso
         tmp=args.tmp,
         technology=args.technology,
         tool=args.tool,
-        para=args.para
     )
 
     print(config['threads'], config['mapping_threads'])
