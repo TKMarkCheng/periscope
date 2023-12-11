@@ -364,36 +364,40 @@ def main(args):
 
     # t2=time.time()
     # print("periscope.py time:", t2-t1)
+inbamfile = pysam.AlignmentFile('../../sgENERATE/ok2.bam', "rb")
+for read in inbamfile:
+    extact_soft_clipped_bases(read)
 
-if __name__ == '__main__':
+# if __name__ == '__main__':
 
 
 
-    parser = argparse.ArgumentParser(description='periscopre: Search for sgRNA reads in artic network SARS-CoV-2 sequencing data')
-    parser.add_argument('--bam', help='bam file',default="The bam file of full artic reads")
-    parser.add_argument('--output-prefix',dest='output_prefix',help="Path to the output, e.g. <DIR>/<SAMPLE_NAME>")
-    parser.add_argument('--score-cutoff',dest='score_cutoff', help='Cut-off for alignment score of leader (50) we recommend you leave this at 50',default=50)
-    parser.add_argument('--orf-bed', dest='orf_bed', help='The bed file with ORF start positions')
-    parser.add_argument('--primer-bed', dest='primer_bed', help='The bed file with artic primer positions')
-    parser.add_argument('--amplicon-bed', dest='amplicon_bed', help='A bed file of artic amplicons')
-    parser.add_argument('--sample', help='sample id',default="SAMPLE")
-    parser.add_argument('--tmp',help="pybedtools likes to write to /tmp if you want to write somewhere else define it here",default="/tmp")
-    parser.add_argument('--progress', help='display progress bar', default="")
-    parser.add_argument('--threads', help='display progress bar', default=1)
+#     parser = argparse.ArgumentParser(description='periscopre: Search for sgRNA reads in artic network SARS-CoV-2 sequencing data')
+#     parser.add_argument('--bam', help='bam file',default="The bam file of full artic reads")
+#     parser.add_argument('--output-prefix',dest='output_prefix',help="Path to the output, e.g. <DIR>/<SAMPLE_NAME>")
+#     parser.add_argument('--score-cutoff',dest='score_cutoff', help='Cut-off for alignment score of leader (50) we recommend you leave this at 50',default=50)
+#     parser.add_argument('--orf-bed', dest='orf_bed', help='The bed file with ORF start positions')
+#     parser.add_argument('--primer-bed', dest='primer_bed', help='The bed file with artic primer positions')
+#     parser.add_argument('--amplicon-bed', dest='amplicon_bed', help='A bed file of artic amplicons')
+#     parser.add_argument('--sample', help='sample id',default="SAMPLE")
+#     parser.add_argument('--tmp',help="pybedtools likes to write to /tmp if you want to write somewhere else define it here",default="/tmp")
+#     parser.add_argument('--progress', help='display progress bar', default="")
+#     parser.add_argument('--threads', help='display progress bar', default=1)
 
-    logger = logging
-    logger.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
+#     logger = logging
+#     logger.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
 
-    logger.info("staring periscope")
+#     logger.info("staring periscope")
 
-    args = parser.parse_args()
+#     args = parser.parse_args()
 
-    set_tempdir(args.tmp)
+#     set_tempdir(args.tmp)
+#     args.bam='../../sgENERATE/Periscope/COV_periscope.bam'
+#     print(os.getcwd())
+#     periscope = main(args)
 
-    periscope = main(args)
-
-    if periscope:
-        print("all done", file=sys.stderr)
+#     if periscope:
+#         print("all done", file=sys.stderr)
 
 
 

@@ -493,6 +493,7 @@ def output_summarised_counts(mapped_reads,result,outfile_counts,outfile_counts_n
 def process_reads(data):
     bam = data[0]
     args = data[1]
+    read_dic={}
     gff=load_gff(args.gff_file)
     # print("processing bam:" + bam)
     # read input bam file
@@ -523,7 +524,8 @@ def process_reads(data):
             # print("%s skipped as supplementary" %
             #       (read.query_name), file=sys.stderr)
             continue
-
+        if read.qname in read_dic:
+            continue
         # find the amplicon for the read
         st,nd=correct_position(gff,read)
         
@@ -531,7 +533,7 @@ def process_reads(data):
 
         total_counts[amplicons["right_amplicon"]]["total_reads"] += 1
 
-
+        
         # we are searching for the leader sequence
         result={
         "read_id":  read.query_name,
@@ -562,6 +564,7 @@ def process_reads(data):
 
         # ok now add this info to a dictionary for later processing
         if "sgRNA" in read_class:
+            read_dic[read.qname]=0
             if result["read_orf"] is None:
                 result["read_orf"] = "novel_"+str(st)
 
