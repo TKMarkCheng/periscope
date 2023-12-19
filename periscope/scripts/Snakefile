@@ -28,7 +28,7 @@ if config["technology"] == "illumina":
             reference = expand("{resources_dir}/{reference_fasta}",resources_dir=config.get("resources_dir"),reference_fasta=config.get("reference_fasta")),
             threads = config.get("mapping_threads")
         shell:
-            "bwa index {input.ref};bwa mem -Y -t {params.threads} {params.reference} {input.fastq} | samtools sort - | samtools view -bh - > {output}"
+            "bwa index {input.ref};bwa mem -Y -k -t {params.threads} {params.reference} {input.fastq} | samtools sort - | samtools view -bh - > {output}"
 
 elif config["technology"] == "ont":
     rule make_multi_ref:
@@ -140,7 +140,7 @@ elif config["technology"] == "ont":
                     reference = expand("{resources_dir}/{reference_fasta}",resources_dir=config.get("resources_dir"),reference_fasta=config.get("reference_fasta")),
                     threads = config.get("mapping_threads")
                 shell:
-                    "bwa index {input.reference};bwa mem -Y -k#5#-W#7 -t {params.threads} {input.reference} {input.fastq} | samtools sort - | samtools view -bh - > {output}"
+                    "bwa index {input.reference};bwa mem -Y -t {params.threads} {input.reference} {input.fastq} | samtools sort - | samtools view -bh - > {output}"
                   
 
 # index the bam file
