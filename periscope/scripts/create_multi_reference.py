@@ -38,5 +38,7 @@ if __name__ == '__main__':
 
 
     args = parser.parse_args()
+    # args.fasta='periscope/resources/nCoV-2019.reference.fasta'
+    # args.gff_file='../../sgENERATE/sgENERATE/recource/script/covid.gff'
 
     periscope = main(args)
