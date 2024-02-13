@@ -141,7 +141,7 @@ elif config["technology"] == "ont":
                     reference = expand("{resources_dir}/{reference_fasta}",resources_dir=config.get("resources_dir"),reference_fasta=config.get("reference_fasta")),
                     threads = config.get("mapping_threads"),
                 shell:
-                    "minimap2 -ax map-ont -k 15 -w 5 -t {params.threads} {input.reference} {input.fastq} | samtools sort - | samtools view -bh - > {output};rm {input.reference}"#-k 10 -w 1
+                    "minimap2 -ax map-ont -k 15 -t {params.threads} {input.reference} {input.fastq} | samtools sort - | samtools view -bh - > {output};rm {input.reference}"#-k 10 -w 1
 
         if config['tool']=='minimap-p':
             rule align:
