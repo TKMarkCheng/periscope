@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from periscope import __version__
+from periscope_multi import __version__
 from Bio import pairwise2
 import pysam
 import argparse

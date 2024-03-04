@@ -15,7 +15,7 @@
 # TODO - I need some reads supporting 7a
 
 # Import all the methods we need
-from periscope.scripts.search_for_sgRNA_illumina import get_mapped_reads, check_start, open_bed, supplementary_method, extact_soft_clipped_bases
+from periscope_multi.scripts.search_for_sgRNA_illumina import get_mapped_reads, check_start, open_bed, supplementary_method, extact_soft_clipped_bases
 
 # this is the truth for these reads
 

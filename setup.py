@@ -1,8 +1,8 @@
 from setuptools import setup
-from periscope import __version__, _program
+from periscope_multi import __version__, _program
 
 setup(
-    name='periscope',
+    name='periscope_multi',
     version=__version__,
     packages=['periscope'],
     scripts=['periscope/scripts/Snakefile',
@@ -12,16 +12,17 @@ setup(
              'periscope/scripts/create_multi_reference.py',
              'periscope/scripts/search_old.py'
              ],
-    package_dir={'periscope': 'periscope'},
-    package_data={'periscope':['resources/*']},
+    package_dir={'periscope_multi': 'periscope_multi'},
+    package_data={'periscope_multi':['resources/*']},
     url='',
     license='',
-    author='Matthew Parker',
-    author_email='matthew.parker@sheffield.ac.uk',
-    description='periscope searches for and quanifies sgRNAs in SARS-CoV-2',
+    author='Thomas Baudeau,Matthew Parker',
+    author_email='thomas.baudeau@univ-lille.fr',
+    description='periscope_multi searches for and quanifies sgRNAs in SARS-CoV-2 from a fork of periscope',
     entry_points="""
     [console_scripts]
-    {program} = periscope.periscope:main
+    {program} = periscope_multi.periscope_multi:main
     """.format(program=_program),
     include_package_data=True,
 )
+

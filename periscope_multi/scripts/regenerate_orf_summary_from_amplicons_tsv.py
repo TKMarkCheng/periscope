@@ -1,5 +1,5 @@
 import argparse
-import periscope.scripts.search_for_sgRNA as p
+import periscope_multi.scripts.search_for_sgRNA as p
 
 
 

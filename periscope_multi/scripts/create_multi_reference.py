@@ -1,4 +1,4 @@
-from periscope import __version__
+from periscope_multi import __version__
 from BCBio import GFF
 import pysam
 import argparse

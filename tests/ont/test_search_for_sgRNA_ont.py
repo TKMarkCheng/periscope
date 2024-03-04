@@ -30,7 +30,7 @@
 # TODO - I need some reads supporting 7a
 
 # Import all the methods we need
-from periscope.scripts.search_for_sgRNA_ont import search_reads, classify_read, find_amplicon, get_mapped_reads, check_start, open_bed, calculate_normalised_counts, setup_counts
+from periscope_multi.scripts.search_for_sgRNA_ont import search_reads, classify_read, find_amplicon, get_mapped_reads, check_start, open_bed, calculate_normalised_counts, setup_counts
 
 # this is the truth for these reads
 
