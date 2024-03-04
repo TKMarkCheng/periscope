@@ -69,7 +69,7 @@ def supplementary_method(read):
                 return "supplementary_maps_to_leader"
 
 
-def extact_soft_clipped_bases(read):
+def extact_soft_clipped_bases(read,args):
     """
             +-----+--------------+-----+
             |M    |BAM_CMATCH    |0    |
@@ -106,7 +106,7 @@ def extact_soft_clipped_bases(read):
 
 
 
-        search='AACCAACTTTCGATCTCTTGTAGATCTGTTCTC'
+        search = str(args.leader)
 
 
         # not enough bases to determine leader
@@ -226,7 +226,7 @@ def process_reads(data):
         # # print(read.is_read1)
         # # print(read.get_tags())
         # print(read.cigar)
-        leader_search_result = extact_soft_clipped_bases(read)
+        leader_search_result = extact_soft_clipped_bases(read,args)
 
         if read.query_name not in reads:
             reads[read.query_name] = []
@@ -401,6 +401,7 @@ if __name__ == '__main__':
     parser.add_argument('--tmp',help="pybedtools likes to write to /tmp if you want to write somewhere else define it here",default="/tmp")
     parser.add_argument('--progress', help='display progress bar', default="")
     parser.add_argument('--threads', help='display progress bar', default=1)
+    parser.add_argument('--leader', help='leader sequence to be searched', default="AACCAACTTTCGATCTCTTGTAGATCTGTTCT")
 
     logger = logging
     logger.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
@@ -412,9 +413,9 @@ if __name__ == '__main__':
     set_tempdir(args.tmp)
     args.bam='../../sgENERATE/Periscope/COV_periscope.bam'
     print(os.getcwd())
-    periscope = main(args)
+    periscope_multi = main(args)
 
-    if periscope:
+    if periscope_multi:
         print("all done", file=sys.stderr)
 
 

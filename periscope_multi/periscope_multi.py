@@ -25,50 +25,10 @@ def main():
                         help="pybedtools likes to write to /tmp if you want to write somewhere else define it here",
                         default="/tmp")
     parser.add_argument('--sample', help='sample id', default="SHEF-D2BD9")
+    parser.add_argument('--leader', help='leader sequence to be searched', default="AACCAACTTTCGATCTCTTGTAGATCTGTTCT")
     parser.add_argument('--tool', help='tool used for mapping', default="minimap")
     parser.add_argument('--technology', help='the sequencing technology used, either:\n*ont\n*illumina', default="ont")
-
-
-
-    print("""
-             /yddmmmddds:                         
-           -hd/` `:hd-`+dy::::::::--`             
-          .dh`     `yd. .dmsoooooosshho.          
-          sm-  :o/  .my  +m/         -yd+         
-          hd  -mmm:  hd  .ms           om:        
-          hd  -mmm:  dd  .ms           -mo        
-          om:  -+:  -ms  +mhoo+-       .ms        
-          `dh.     `hd. -dy:::sd/      .ms        
-           .yd/.`./hd:-ods`   .ms      .ms        
-            `:syyyhhyyyo-     .ms      .ms        
-               ````````       .ms      .ms        
-                              .ms      .ms        
-                              .ms      .ms        
-                              .ms      .ms        
- ``            ```            .ms      .ms        
- `````       `.```````      ``-ms      .ms   `.`  
- ```````````.` ```` ``.`````.`.ms      .ms`.``    
-  ``.``     ``.`````.`````  `.-ms      .ms`  `.`` 
-oso/.`.````..-+ssss+-`..```..-omhss+-` .ms``.-/oso
-.-:shs:```./yho:--:ohy:.``.:yho:--:ohy/:ms.:shs:-.
- ```.+yhyyhy/.``.```./yhyyhy/.``````./yhdhyy+.``  
-   `..``.````.``    `.``..```.`     `.``..` `.`   
-  `````````.` ``..``` ```.`.` ```````  ``..`` ``` 
-   `..`     `.``    `.`     `.`     `.`     `..`  
- ```  ``````` ``````  ``...`` ```.``   `````` ````
-    ```     ```     ```    ``.`     `.`     `.`   
-  ``` ``````` ``..``` ``````   `````` ``...``   . 
-    `..`    ``.`    `..`    `..`    `.`     `..`  
-      ```````          `.`..`          ```..`     
-                  _                          
-  █ ▄▄  ▄███▄   █▄▄▄▄ ▄█    ▄▄▄▄▄   ▄█▄    ████▄ █ ▄▄  ▄███▄   
-█   █ █▀   ▀  █  ▄▀ ██   █     ▀▄ █▀ ▀▄  █   █ █   █ █▀   ▀  
-█▀▀▀  ██▄▄    █▀▀▌  ██ ▄  ▀▀▀▀▄   █   ▀  █   █ █▀▀▀  ██▄▄    
-█     █▄   ▄▀ █  █  ▐█  ▀▄▄▄▄▀    █▄  ▄▀ ▀████ █     █▄   ▄▀ 
- █    ▀███▀     █    ▐            ▀███▀         █    ▀███▀   
-  ▀            ▀                                 ▀          
-                                                    Vanguard
-    """)
+ 
 
     if len(sys.argv) < 2:
         parser.print_help()
@@ -171,6 +131,7 @@ oso/.`.````..-+ssss+-`..```..-omhss+-` .ms``.-/oso
         tmp=args.tmp,
         technology=args.technology,
         tool=args.tool,
+        leader=args.leader
     )
 
     print(config['threads'], config['mapping_threads'])

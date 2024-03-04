@@ -280,8 +280,9 @@ else:
             amplicon_bed =expand("{amplicon_bed}",amplicon_bed=config.get("amplicon_bed")),
             tmp = config.get("tmp"),
             threads = config.get("threads")
+            leader=config.get('leader')
 
         shell:
-            "python {params.search} --bam {input.bam} --gff {params.gff_loc} --score-cutoff {params.score_cutoff} --output-prefix {params.output_prefix} --score-cutoff {params.score_cutoff} --sample {params.sample} --orf-bed {params.orf_bed} --primer-bed {params.primer_bed} --amplicon-bed {params.amplicon_bed} --tmp {params.tmp} --threads {params.threads}"
+            "python {params.search} --bam {input.bam} --gff {params.gff_loc} --score-cutoff {params.score_cutoff} --output-prefix {params.output_prefix} --score-cutoff {params.score_cutoff} --sample {params.sample} --orf-bed {params.orf_bed} --primer-bed {params.primer_bed} --amplicon-bed {params.amplicon_bed} --tmp {params.tmp} --threads {params.threads} --leader {params.leader}"
 
 

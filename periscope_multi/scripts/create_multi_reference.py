@@ -12,7 +12,7 @@ def main(args):
     ab= GFF.parse(in_handle)
     end=None
     begin=None
-    search = 'AACCAACTTTCGATCTCTTGTAGATCTGTTCT'
+    search = str(args.leader)
     for rec in ab:
         for feature in rec.features:
             if feature.type=='gene':

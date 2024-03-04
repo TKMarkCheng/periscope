@@ -4,13 +4,13 @@ from periscope_multi import __version__, _program
 setup(
     name='periscope_multi',
     version=__version__,
-    packages=['periscope'],
-    scripts=['periscope/scripts/Snakefile',
-             'periscope/scripts/search_for_sgRNA_ont.py',
-             'periscope/scripts/search_for_sgRNA_illumina.py',
-             'periscope/scripts/variant_expression.py',
-             'periscope/scripts/create_multi_reference.py',
-             'periscope/scripts/search_old.py'
+    packages=['periscope_multi'],
+    scripts=['periscope_multi/scripts/Snakefile',
+             'periscope_multi/scripts/search_for_sgRNA_ont.py',
+             'periscope_multi/scripts/search_for_sgRNA_illumina.py',
+             'periscope_multi/scripts/variant_expression.py',
+             'periscope_multi/scripts/create_multi_reference.py',
+             'periscope_multi/scripts/search_old.py'
              ],
     package_dir={'periscope_multi': 'periscope_multi'},
     package_data={'periscope_multi':['resources/*']},

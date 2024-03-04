@@ -545,7 +545,7 @@ def process_reads(data):
 
         # add orf location to result
         result["read_orf"] = check_start(orf_bed_object, read)
-        search = 'AACCAACTTTCGATCTCTTGTAGATCTGTTCT'
+        search = str(args.leader)
         if result["read_orf"]==None:
             result= search_reads(read,search)
         else:
@@ -655,7 +655,7 @@ def main(args):
 
 if __name__ == '__main__':
 
-    parser = argparse.ArgumentParser(description='periscopre: Search for sgRNA reads in artic network SARS-CoV-2 sequencing data')
+    parser = argparse.ArgumentParser(description='periscope: Search for sgRNA reads in artic network SARS-CoV-2 sequencing data')
     parser.add_argument('--bam', help='bam file',default="The bam file of full artic reads")
     parser.add_argument('--output-prefix',dest='output_prefix',help="Path to the output, e.g. <DIR>/<SAMPLE_NAME>")
     parser.add_argument('--gff',dest='gff_file',help="gff file with all gene position")
@@ -667,6 +667,7 @@ if __name__ == '__main__':
     parser.add_argument('--tmp',help="pybedtools likes to write to /tmp if you want to write somewhere else define it here",default="/tmp")
     parser.add_argument('--progress', help='display progress bar', default="")
     parser.add_argument('--threads', help='threads used for multi-processing', default=1)
+    parser.add_argument('--leader', help='leader sequence to be searched', default="AACCAACTTTCGATCTCTTGTAGATCTGTTCT")
     
 
     args = parser.parse_args()
@@ -684,9 +685,9 @@ if __name__ == '__main__':
     set_tempdir(args.tmp)
 
 
-    periscope = main(args)
+    periscope_multi = main(args)
 
-    if periscope:
+    if periscope_multi:
         print("all done", file=sys.stderr)
 
 
