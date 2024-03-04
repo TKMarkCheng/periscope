@@ -229,7 +229,7 @@ rule reheader:
         "for i in `ls {params.output_prefix}.split*`; do cat {input.header} $i > $i.sam; done && rm {params.output_prefix}*.split.??"
 
 if config['tool']=='graphmap' and not config["technology"] == "illumina":
-    rule periscope:
+    rule periscope_multi:
         input:
             split=expand("{output_prefix}.split.00.sam",output_prefix=config.get("output_prefix")),
             bam = expand("{output_prefix}.bam",output_prefix=config.get("output_prefix")),
@@ -252,13 +252,13 @@ if config['tool']=='graphmap' and not config["technology"] == "illumina":
             threads = config.get("threads")
 
         shell:
-           "python {params.search} --bam {input.bam} --score-cutoff {params.score_cutoff} --output-prefix {params.output_prefix} --score-cutoff {params.score_cutoff} --sample {params.sample} --orf-bed {params.orf_bed} --primer-bed {params.primer_bed} --amplicon-bed {params.amplicon_bed} --tmp {params.tmp} --threads {params.threads}"
+            "python {params.search} --bam {input.bam} --gff {params.gff_loc} --score-cutoff {params.score_cutoff} --output-prefix {params.output_prefix} --score-cutoff {params.score_cutoff} --sample {params.sample} --orf-bed {params.orf_bed} --primer-bed {params.primer_bed} --amplicon-bed {params.amplicon_bed} --tmp {params.tmp} --threads {params.threads}"
 
 
 
 #run periscope
 else:
-    rule periscope:
+    rule periscope_multi:
         input:
             split=expand("{output_prefix}.split.00.sam",output_prefix=config.get("output_prefix")),
             bam = expand("{output_prefix}.bam",output_prefix=config.get("output_prefix")),
