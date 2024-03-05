@@ -279,7 +279,7 @@ else:
             primer_bed = expand("{primer_bed}",primer_bed=config.get("primer_bed")),
             amplicon_bed =expand("{amplicon_bed}",amplicon_bed=config.get("amplicon_bed")),
             tmp = config.get("tmp"),
-            threads = config.get("threads")
+            threads = config.get("threads"),
             leader=config.get('leader')
 
         shell:
