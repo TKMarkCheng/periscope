@@ -35,6 +35,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='make multi_ref')
     parser.add_argument('--fasta', help='reference file',default="The reference file of the specie of interest")
     parser.add_argument('--gff',dest='gff_file',help="gff file with all gene position")
+    parser.add_argument('--leader', help='leader sequence to be searched', default="AACCAACTTTCGATCTCTTGTAGATCTGTTCT")
 
 
     args = parser.parse_args()
