@@ -7,10 +7,7 @@ A tool to quantify sub-genomic RNA (sgRNA) expression in SARS-CoV-2 artic networ
 
 # Citing
 
-Please cite our pre-print if you use this tool in any publications:
-
-https://www.biorxiv.org/content/10.1101/2020.07.01.181867v1
-
+TODO
 
 # Requirements
 periscope runs Linux. 
@@ -32,7 +29,7 @@ pip install .
 ```
 conda activate periscope
 
-periscope \
+periscope_multi \
     --fastq-dir <PATH_TO_DEMUXED_FASTQ> \ (ont only)
     OR
     --fastq <FULL_PATH_OF_FASTQ_FILE(s)> \ (space separated list of fastq files, you MUST use this for Illumina data)
@@ -56,10 +53,6 @@ To view the requirements for these files and advice on how to generate them, go 
 So if you put `./SAMPLE1` for this argument outputs will go in the current working directory prefixed by "SAMPLE1". 
 
 ***Note*** - for illumina data please use --fastq <FASTQ_R1>.fastq.gz <FASTQ_R2>.fastq.gz and --technology illumina
-
-## `/tmp` Issues
-
-If you have issues with `tmp` this is because pybedtools writes there. v0.0.3 contains a fix, and you can also specify `--tmp` and redirect this somewhere else
 
 
 ## Counting
@@ -195,21 +188,3 @@ MN908947.3	704	726	nCoV-2019_2_RIGHT	nCoV-2019_2
 MN908947.3	642	664	nCoV-2019_3_LEFT	nCoV-2019_1
 MN908947.3	1004	1028	nCoV-2019_3_RIGHT	nCoV-2019_1
 ```
-
-
-# Citations
-
-### Long Amplicon Tiling Data
-
-We implemened 2kb amplicon tilling in v0.0.2 from:
-
-**SARS-CoV-2 genomes recovered by long amplicon tiling multiplex approach using nanopore sequencing and applicable to other sequencing platforms**
-Paola Cristina Resende, Fernando Couto Motta, Sunando Roy, Luciana Appolinario, Allison Fabri, Joilson Xavier, Kathryn Harris, Aline Rocha Matos, Braulia Caetano, Maria Orgeswalska, Milene Miranda, Cristiana Garcia, André Abreu, Rachel Williams, Judith Breuer, Marilda M Siqueira
-bioRxiv 2020.04.30.069039; doi: https://doi.org/10.1101/2020.04.30.069039
-
-
-
-
-
-
-Why periscope? SUB-genomic RNA, SUB-marine, periscope.
