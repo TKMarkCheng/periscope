@@ -38,7 +38,7 @@ def correct_position(gff,read):
             return st,nd
 
 def load_gff(gff_file):
-    in_file = args.gff_file
+    in_file = gff_file
 
     in_handle = open(in_file)
     ab= GFF.parse(in_handle)
