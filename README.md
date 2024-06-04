@@ -27,7 +27,7 @@ pip install .
 # Execution
 
 ```
-conda activate periscope
+conda activate periscope_multifasta
 
 periscope_multi \
     --fastq-dir <PATH_TO_DEMUXED_FASTQ> \ (ont only)
@@ -63,23 +63,9 @@ _Our median read count is ~250k and this will take around 25minutes_
 * Read bam file
 * Filter unmapped and secondary alignments
 * Assign amplicon to read (using artic align_trim.py)
-* Search for leader sequence
-* Assign read to ORF
-* Classify read (see Figure 2)
+* Assign read to ORF (using the different references)
+* Classify read 
 * Normalise a few ways
-
-## Normalisation
-
-### ONT Data
-
-We have taken two approaches, a global normalisation based on mapped read counts or a local normalisation based on gRNA from the same amplicon.
-
-* gRNA or sgRNA Per 100,000 mapped reads (gRPHT or sgRPHT)
-    * We do this per amplicon and sum them in instances where multiple amplicons contribute to the final ORF count
-* sgRNA can be normalised to per 1000 gRNA reads from the same amplicon - sgRPTg (normalising for amplicon efficiency differences)
-    * There are things you need to note here:
-        * multiple amplicons can contribute to reads which support the same sgRNA
-        * we normalise on a per amplicon level and then sum these to get an overall normalised count
 
 ## Outputs:
 
@@ -101,34 +87,18 @@ The counts of genomic, sub-genomic and normalisation values for non-canonical OR
 
 #### <OUTPUT_PREFIX>.bam
 
-minmap2 mapped reads and index with no adjustments made.
+minimap2 mapped reads and index with no adjustments made.
 
 #### <OUTPUT_PREFIX>_periscope.bam
 
 This is the original input bam file and index created by periscope with the reads specified in the fastq-dir. This file, however, has tags which represent the results of periscope:
 
-- XS is the alignment score
 - XA is the amplicon number
 - XC is the assigned class (gDNA or sgDNA)
 - XO is the orf assigned
 
 These are useful for manual review in IGV or similar genome viewer. You can sort or colour reads by these tags to aid in manual review and figure creation.
 
-
-# Extracting Base Frequencies
-
-To examine the composition of bases at variant sites we have provided this code.
-```
-conda activate periscope
-
-gunzip <ARTIC_NETWORK_VCF>.pass.vcf.gz
-
-<PATH_TO_PERISCOPE>/periscope/periscope/scripts/variant_expression.py \
-    --periscope-bam <PATH_TO_PERISCOPE_OUTPUT_BAM> \
-    --vcf <ARTIC_NETWORK_VCF>.pass.vcf \
-    --sample <SAMPLE_NAME> \
-    --output-prefix <PREFIX>
-```
 
 #### <OUTPUT_PREFIX>_base_counts.csv
 
@@ -142,7 +112,7 @@ Plot of each position and base composition
 
 We provide a sam file for testing the main module of periscope.
 
-reads.sam contains 23 reads which have been manually reviewed for the truth
+reads.sam contains 19 reads which have been manually reviewed for the truth
 
 ```
 cd <INSTALLATION_PATH>/periscope/tests
