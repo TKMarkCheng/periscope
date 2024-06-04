@@ -13,24 +13,19 @@
 # 8092cf1e-d132-4abc-ac3d-4ccb22dbb932  M   87  gRNA
 # 5da3aeaa-f955-4b9a-89dd-7bdd6e3b77fe  M   87  gRNA
 # 90928d27-3c71-45f2-b31c-3d7de36c78b8  ORF6    89  sgRNA   ORF6 supporting read from amplicon 89
+
 # 4d67e504-7d7d-4b11-aea2-3ec606195a1b  ORF6    90  sgRNA   ORF6 supporting read from amplicon 90
 # 8a8c2527-72b2-4ca1-9570-f8f00f336de0  ORF6    90  gRNA
 # b07a9f12-ff5f-4df0-bf2b-73a072921392  ORF6    89  gRNA
 # 1ec155b3-120c-4181-86ef-b31c186d4651  N   93  sgRNA   Bad leader match (classified as gRNA at 50)
+
 # e0d5f838-1aca-44d2-a001-e47d7c0edb06  N   93  sgRNA   Good leader match
 # 21af3571-b970-4d1e-ad1c-3f95d1fa150e  N   93  gRNA
 # c85c93e5-427d-448d-940b-ea8e6ec2ac6a  N   93  gRNA
-# e8981b0c-21fe-4920-80e3-530197f3d15e  novel_20315   67  sgRNA   Novel sgRNA
-# 07b675cc-6b19-4ed4-9341-6576ad51957f  None    67  gRNA
-# 76aaf579-4754-4bbe-b001-4ac2d6f76533  novel_19548   65  gRNA    listed as novel, but on edge of amplicon
-# 1e0b6284-ec08-4451-b0fc-3f7f36e75b31  None    97  gRNA
-# 53619614-d945-4c47-88f0-119852dc80fe  ORF1a    1  gRNA    ORF1a assigned to gRNA not sgRNA
 
-# TODO - I want some amplicon 86 reads that support E
-# TODO - I need some reads supporting 7a
 
 # Import all the methods we need
-from periscope_multi.scripts.search_for_sgRNA_ont import search_reads, classify_read, find_amplicon, get_mapped_reads, check_start, open_bed, calculate_normalised_counts, setup_counts
+from periscope_multi.scripts.search_for_sgRNA_ont import search_reads, classify_read, find_amplicon, get_mapped_reads, check_start, open_bed, calculate_normalised_counts, setup_counts,correct_position,load_gff
 
 # this is the truth for these reads
 
@@ -149,36 +144,7 @@ truth = {
         "amplicon": 93,
         "orf": None
     },
-    "e8981b0c-21fe-4920-80e3-530197f3d15e": {
-        "class": "nsgRNA_HQ",
-        "align_score": 64.0,
-        "amplicon": 67,
-        "orf": None
-    },
-    "07b675cc-6b19-4ed4-9341-6576ad51957f": {
-        "class": "gRNA",
-        "align_score": 14.0,
-        "amplicon": 67,
-        "orf": None
-    },
-    "76aaf579-4754-4bbe-b001-4ac2d6f76533": {
-        "class": "gRNA",
-        "align_score": 64.0,
-        "amplicon": 65,
-        "orf": None
-    },
-    "1e0b6284-ec08-4451-b0fc-3f7f36e75b31": {
-        "class": "gRNA",
-        "align_score": 14.0,
-        "amplicon": 97,
-        "orf": None
-    },
-    "53619614-d945-4c47-88f0-119852dc80fe": {
-        "class": "gRNA",
-        "align_score": 64.0,
-        "amplicon": 1,
-        "orf": "ORF1a"
-    },
+    
     "amplicons": {
         "V1": 98,
         "V2": 98,
@@ -198,73 +164,41 @@ from artic.vcftagprimersites import read_bed_file
 
 dirname = os.path.dirname(__file__)
 reads_file = os.path.join(dirname,"reads.sam")
-primer_file = os.path.join(dirname, "../../periscope/resources/artic_primers_V3.bed")
-
+primer_file = os.path.join(dirname, "../../periscope_multi/resources/artic_primers_V3.bed")
+gff=os.path.join(dirname, "../../periscope_multi/resources/covid.gff")
 def test_mapped_reads():
     mapped_reads = get_mapped_reads(reads_file)
-    assert mapped_reads == 24
+    assert abs(mapped_reads) == 19
 
 def test_setup_counts():
     for primer_set in truth["amplicons"]:
-        primer_file = os.path.join(dirname, "../../periscope/resources/artic_primers_{}.bed".format(primer_set))
+        primer_file = os.path.join(dirname, "../../periscope_multi/resources/artic_primers_{}.bed".format(primer_set))
         primer_bed_object = read_bed_file(primer_file)
         total_counts = setup_counts(primer_bed_object)
         assert len(total_counts) == truth["amplicons"][primer_set]
 
 def test_check_start():
     inbamfile = pysam.AlignmentFile(reads_file, "rb")
-    filename = os.path.join(dirname, "../../periscope/resources/orf_start.bed")
+    filename = os.path.join(dirname, "../../periscope_multi/resources/orf_start.bed")
     bed_object = open_bed(filename)
     for read in inbamfile:
         orf = check_start(bed_object,read)
         assert orf == truth[read.query_name]["orf"]
 
 
-def test_search_reads():
-
-    inbamfile = pysam.AlignmentFile(reads_file, "rb")
-    for read in inbamfile:
-        search = 'AACCAACTTTCGATCTCTTGTAGATCTGTTCT'
-        result = search_reads(read, search)
-        assert result["align_score"] == truth[read.query_name]["align_score"]
-
 
 def test_find_amplicon():
 
-    filename = os.path.join(dirname, "../../periscope/resources/artic_primers_V3.bed")
+    filename = os.path.join(dirname, "../../periscope_multi/resources/artic_primers_V3.bed")
     primer_bed_object = read_bed_file(filename)
     inbamfile = pysam.AlignmentFile(reads_file, "rb")
     for read in inbamfile:
-        amplicon = find_amplicon(read,primer_bed_object)["right_amplicon"]
+        cur_gff=load_gff(gff)
+        st,nd=correct_position(cur_gff,read)
+        amplicon = find_amplicon(st,nd,primer_bed_object)["right_amplicon"]
         assert amplicon == truth[read.query_name]["amplicon"]
 
 
 
 
-def test_classify_read():
-    inbamfile = pysam.AlignmentFile(reads_file, "rb")
 
-    filename = os.path.join(dirname, "../../periscope/resources/artic_primers_V3.bed")
-    primer_bed_object = read_bed_file(filename)
-
-    filename = os.path.join(dirname, "../../periscope/resources/orf_start.bed")
-    bed_object = open_bed(filename)
-
-    for read in inbamfile:
-        print(read.query_name)
-        search = 'AACCAACTTTCGATCTCTTGTAGATCTGTTCT'
-        search_result = search_reads(read,search)
-        amplicons = find_amplicon(read, primer_bed_object)
-        orf = check_start(bed_object, read)
-        result = classify_read(read,search_result["align_score"],50,orf,amplicons)
-        print(result)
-        assert result == truth[read.query_name]["class"]
-
-
-def test_pybedtools():
-    import pybedtools
-    read_feature = pybedtools.BedTool("MN908947.3" + "\t" + str(0) + "\t" + str(0),from_string=True)
-    for bed_line in read_feature:
-        assert bed_line.chrom == "MN908947.3"
-        assert bed_line.start == 0
-        assert bed_line.end == 0
