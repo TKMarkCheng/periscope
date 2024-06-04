@@ -52,5 +52,5 @@ jobs:
         conda init
         conda activate periscope_multifasta
         conda install pytest -y
-        #cd test 
-        #pytest test_make_stats.py
+        cd tests/ont 
+        pytest test_search_for_sgRNA_ont.py
