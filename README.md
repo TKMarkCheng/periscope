@@ -25,7 +25,7 @@ pip install .
 ```
 
 
-#Quick Running (test sample)
+# Quick Running (test sample)
 
 A fastq file is provided for use as an example to launch the tool.
 
