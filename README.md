@@ -24,6 +24,21 @@ conda activate periscope_multifasta
 pip install .
 ```
 
+
+#Quick Running (test sample)
+
+A fastq file is provided for use as an example to launch the tool.
+
+
+```
+conda activate periscope_multifasta
+
+periscope_multi --fastq tests/ont/test.fastq --gff periscope_multi/resources/covid.gff
+
+```
+
+
+
 # Execution
 
 ```
