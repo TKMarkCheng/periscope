@@ -1,4 +1,4 @@
-![alt text](https://github.com/sheffield-bioinformatics-core/periscope/blob/master/periscope.png "periscope")
+![alt text](https://github.com/TKMarkCheng/periscope/blob/master/periscope.png "periscope")
 
 # periscope
 
@@ -7,10 +7,10 @@ Initial classification of reads into sub-genomic or not based on https://www.bio
 
 # Citing
 
-Please cite our pre-print if you use this tool in any publications:
+Please cite the original preprint or publication if you use this tool in any publications:
 
 https://www.biorxiv.org/content/10.1101/2020.07.01.181867v1
-
+https://doi.org/10.1101/gr.268110.120
 
 # Requirements
 periscope runs on MacOS and Linux. We have also confirmed the tool runs under windows 10 unix subsystem.
@@ -22,7 +22,7 @@ periscope runs on MacOS and Linux. We have also confirmed the tool runs under wi
 
 # Installation
 ```
-git clone https://github.com/sheffield-bioinformatics-core/periscope.git && cd periscope
+git clone https://github.com/TKMarkCheng/periscope.git && cd periscope
 conda env create -f environment.yml
 conda activate periscope
 pip install .

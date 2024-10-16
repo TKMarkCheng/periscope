@@ -21,5 +21,4 @@ dependencies:
   - pip=20.0.2
   - setuptools=52.0.0
   - pyvcf=0.6.8
-  - pip:
-    - git+https://github.com/artic-network/fieldbioinformatics.git@1.1.1
+  - artic=1.2.1
