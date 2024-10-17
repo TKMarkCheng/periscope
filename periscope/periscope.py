@@ -122,7 +122,7 @@ oso/.`.````..-+ssss+-`..```..-omhss+-` .ms``.-/oso
     version = [version] if isinstance(version, str) else version
     interest_bed = "artic_amplicons_of_interest.bed"
     
-    if version[0] in ["V1", "V2", "V3", "V4", "2kb", "midnight"]:
+    if version[0] in ["V1", "V2", "V3", "V4", "V4.1", "2kb", "midnight"]:
         amplicons_bed=os.path.join(resources_dir, "artic_amplicons_{}.bed".format(version[0]))
         primers_bed=os.path.join(resources_dir, "artic_primers_{}.bed".format(version[0]))
     elif len(version)>1:

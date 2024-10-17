@@ -46,8 +46,9 @@ periscope \
 ```
 
 For custom primers use `--artic-primers` argument followed by:
-* path to the custom amplicons file
-* path to the custom primers file
+
+1. path to the custom amplicons file
+2. path to the custom primers file
 
 To view the requirements for these files and advice on how to generate them, go to [Custom amplicons and primers section](#custom123).
 
