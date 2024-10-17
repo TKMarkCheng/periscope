@@ -4,21 +4,25 @@ channels:
   - bioconda
   - defaults
 dependencies:
-  - python=3.6
-  - tqdm=4.46.0
-  - plotnine=0.7.0
-  - pandas=1.0.3
-  - samtools=1.9
-  - numpy=1.18.4
-  - pysam=0.15.4
-  - minimap2=2.17
-  - bwa=0.7.17
+  - artic=1.2.2
+  - bcftools=1.10.2
   - bedtools=2.29.2
-  - biopython=1.74
+  - biopython=1.76
+  - bwa=0.7.17
+  - minimap2=2.17
+  - numpy=1.16.1
+  - pandas=0.23.0
+  - plotnine=0.4.0
   - pybedtools=0.8.1
-  - snakemake-minimal=5.13
+  - pysam=0.16.0.1
   - pytest=5.4.2
-  - pip=20.0.2
-  - setuptools=52.0.0
+  - python=3.6.13
   - pyvcf=0.6.8
-  - artic=1.2.1
+  - samtools=1.10
+  - setuptools=52.0.0
+  - snakemake-minimal=5.13.0
+  - tqdm=4.46.0
+
+# changed by installing v0.1.2 environment.yml without artic
+# then adding artic by mamba install bioconda::artic
+# then exporting the environmental.yml with updated packages list, and keeping only core packages
