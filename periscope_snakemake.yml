@@ -1,0 +1,29 @@
+name: periscope_snakemake
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - artic=1.2.2
+  - bcftools=1.10.2
+  - bedtools=2.29.2
+  - biopython=1.76
+  - bwa=0.7.17
+  - minimap2=2.17
+  - numpy=1.16.1
+  - pandas=0.23.0
+  - plotnine=0.4.0
+  - pybedtools=0.8.1
+  - pysam=0.16.0.1
+  - pytest=5.4.2
+  - python=3.6.13
+  - pyvcf=0.6.8
+  - samtools=1.10
+  - setuptools=52.0.0
+  - snakemake-minimal=5.13.0
+  - tqdm=4.46.0
+  - pip
+  - pip:
+    - git+https://github.com/TKMarkCheng/periscope.git@master
+
+# can be directly placed in snakemake/envs
