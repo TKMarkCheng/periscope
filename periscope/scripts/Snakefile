@@ -1,3 +1,6 @@
+threads = config.get("mapping_threads")
+split_suffix = [f"{i:02}" for i in range(int(threads))]
+
 rule all:
     input:
         # # merged fastq file
@@ -12,11 +15,10 @@ rule all:
         expand("{output_prefix}_periscope_amplicons.csv",output_prefix=config.get("output_prefix")),
         # tagged bam
         # expand("{output_prefix}_periscope.bam",output_prefix=config.get("output_prefix")),
-        expand("{output_prefix}_header.txt",output_prefix=config.get("output_prefix")),
-        expand("{output_prefix}.split.00.sam",output_prefix=config.get("output_prefix"))
         # expand("{output_prefix}_periscope.bam.bai",output_prefix=config.get("output_prefix"))
 
-
+        expand("{output_prefix}_header.txt",output_prefix=config.get("output_prefix")),
+        # expand("{output_prefix}.split.{split_suffix}.sam",output_prefix=config.get("output_prefix"),split_suffix=split_suffix),
 
 if config["technology"] == "illumina":
 
@@ -61,7 +63,7 @@ elif config["technology"] == "ont":
             input:
                 merged_fastq = expand("{output_prefix}.{extension}",output_prefix=config.get("output_prefix"),extension=config.get("extension"))
             output:
-               expand("{output_prefix}.bam",output_prefix=config.get("output_prefix"))
+               "{output_prefix}.bam",output_prefix=config.get("output_prefix")
             params:
                 reference = expand("{resources_dir}/{reference_fasta}",resources_dir=config.get("resources_dir"),reference_fasta=config.get("reference_fasta")),
                 threads = config.get("mapping_threads")
@@ -73,7 +75,7 @@ elif config["technology"] == "ont":
             input:
                 fastq = config.get("fastq")
             output:
-               expand("{output_prefix}.bam",output_prefix=config.get("output_prefix"))
+               "{output_prefix}.bam"
             params:
                 reference = expand("{resources_dir}/{reference_fasta}",resources_dir=config.get("resources_dir"),reference_fasta=config.get("reference_fasta")),
                 threads = config.get("mapping_threads")
@@ -83,48 +85,64 @@ elif config["technology"] == "ont":
 # index the bam file
 rule index:
     input:
-        bam = expand("{output_prefix}.bam",output_prefix=config.get("output_prefix"))
+        bam = "{output_prefix}.bam"
     output:
-        expand("{output_prefix}.bam.bai",output_prefix=config.get("output_prefix"))
+        "{output_prefix}.bam.bai"
     shell:
         "samtools index {input.bam}"
 
 #split the bam file for faster processing
-rule split:
+rule split_get_header:
     input:
-        bam = expand("{output_prefix}.bam",output_prefix=config.get("output_prefix"))
+        bam = "{output_prefix}.bam"
     output:
-        header=expand("{output_prefix}_header.txt",output_prefix=config.get("output_prefix")),
-        sam=expand("{output_prefix}.sam",output_prefix=config.get("output_prefix")),
-        split=expand("{output_prefix}.split.00",output_prefix=config.get("output_prefix"))
+        header = temp("{output_prefix}_header.txt"),
+    shell:
+        "samtools view -H {input.bam} > {output.header}" # -H = header only
+
+rule bam_to_sam:
+    input:
+        bam = "{output_prefix}.bam"
+    output:
+        sam=temp("{output_prefix}.sam")
+    shell:
+        "samtools view {input.bam} > {output.sam}" # equivalent to --no-header
+
+rule split_sams:
+    input:
+        sam="{output_prefix}.sam",
     params:
         threads = config.get("threads"),
+        split_output = "{output_prefix}.split.{split_suffix}",
         prefix = expand("{output_prefix}.split.",output_prefix=config.get("output_prefix")),
+    output:
+        split=temp("{output_prefix}.split.{split_suffix}.txt")
+    
     shell:
-        "samtools view -H {input.bam} > {output.header} && samtools view {input.bam} > {output.sam} && split -d -l $(echo `wc -l {output.sam} | cut -f1 -d \" \"` /{params.threads}+1 | bc) {output.sam} {params.prefix}"
+        "split --numeric-suffixes=0 --additional-suffix=.txt --lines $(echo `wc -l {input.sam} | cut -f1 -d \" \"` /{params.threads}+1 | bc) {input.sam} {params.prefix}"
 
 rule reheader:
     input:
-        header=expand("{output_prefix}_header.txt",output_prefix=config.get("output_prefix")),
-        split=expand("{output_prefix}.split.00",output_prefix=config.get("output_prefix"))
+        header="{output_prefix}_header.txt",
+        split="{output_prefix}.split.{split_suffix}.txt"
     output:
-        expand("{output_prefix}.split.00.sam",output_prefix=config.get("output_prefix"))
+        split_sam=temp("{output_prefix}.split.{split_suffix}.sam")
     params:
         output_prefix = config.get("output_prefix")
     shell:
-        "for i in `ls {params.output_prefix}.split*`; do cat {input.header} $i > $i.sam; done && rm *.split.??"
+        "cat {input.header} {input.split} > {output.split_sam}"
 
 #run periscope
 rule periscope:
     input:
-        split=expand("{output_prefix}.split.00.sam",output_prefix=config.get("output_prefix")),
-        bam = expand("{output_prefix}.bam",output_prefix=config.get("output_prefix")),
-        bai = expand("{output_prefix}.bam.bai",output_prefix=config.get("output_prefix"))
+        split_sam = expand("{output_prefix}.split.{split_suffix}.sam",output_prefix=config.get("output_prefix"),split_suffix=split_suffix),        
+        bam = "{output_prefix}.bam",
+        bai = "{output_prefix}.bam.bai"
     output:
         # expand("{output_prefix}_periscope.bam",output_prefix=config.get("output_prefix")),
-        expand("{output_prefix}_periscope_counts.csv",output_prefix=config.get("output_prefix")),
-        expand("{output_prefix}_periscope_amplicons.csv",output_prefix=config.get("output_prefix")),
-        expand("{output_prefix}_periscope_novel_counts.csv",output_prefix=config.get("output_prefix"))
+        "{output_prefix}_periscope_counts.csv",
+        "{output_prefix}_periscope_amplicons.csv",
+        "{output_prefix}_periscope_novel_counts.csv",
         # expand("{output_prefix}_periscope.bam.bai",output_prefix=config.get("output_prefix"))
     params:
         search = expand("{scripts_dir}/search_for_sgRNA_{technology}.py",scripts_dir=config.get("scripts_dir"),technology=config.get("technology")),
