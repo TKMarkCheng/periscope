@@ -21,14 +21,14 @@ if config["technology"] == "illumina":
 
     rule align:
         input:
-            fastq = config.get("fastq")
+            fastq = config.get("fastq"),
         output:
            expand("{output_prefix}.bam",output_prefix=config.get("output_prefix"))
         params:
             reference = expand("{resources_dir}/{reference_fasta}",resources_dir=config.get("resources_dir"),reference_fasta=config.get("reference_fasta")),
             threads = config.get("mapping_threads")
         shell:
-            "bwa index {input.ref};bwa mem -Y -k -t {params.threads} {params.reference} {input.fastq} | samtools sort - | samtools view -bh - > {output}"
+            "bwa mem -Y -t {params.threads} {params.reference} {input.fastq} | samtools sort - | samtools view -bh - > {output}"
 
 elif config["technology"] == "ont":
     rule make_multi_ref:
@@ -128,7 +128,7 @@ elif config["technology"] == "ont":
                     reference = expand("{resources_dir}/{reference_fasta}",resources_dir=config.get("resources_dir"),reference_fasta=config.get("reference_fasta")),
                     threads = config.get("mapping_threads"),
                 shell:
-                    "bwa index {input.ref}; bwa mem -Y -t {params.threads} {input.reference} {input.merged_fastq} | samtools sort - | samtools view -bh - > {output}"
+                    "bwa index {input.reference}; bwa mem -Y -t {params.threads} {input.reference} {input.merged_fastq} | samtools sort - | samtools view -bh - > {output}"
     else:
         if config['tool']=='minimap':
             rule align:
