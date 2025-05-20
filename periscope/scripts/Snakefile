@@ -1,6 +1,5 @@
 threads = config.get("mapping_threads")
-split_suffix = [f"{i:02}" for i in range(int(threads))]
-
+split_suffix = [f"{i+1:04}" for i in range(int(threads))]
 rule all:
     input:
         # # merged fastq file
@@ -92,50 +91,47 @@ rule index:
         "samtools index {input.bam}"
 
 #split the bam file for faster processing
-rule split_get_header:
+# rule split_get_header:
+#     input:
+#         bam = "{output_prefix}.bam"
+#     output:
+#         header = temp("{output_prefix}_header.txt"),
+#     shell:
+#         "samtools view -H {input.bam} > {output.header}" # -H = header only
+rule split_bams:
     input:
-        bam = "{output_prefix}.bam"
-    output:
-        header = temp("{output_prefix}_header.txt"),
-    shell:
-        "samtools view -H {input.bam} > {output.header}" # -H = header only
-
-rule bam_to_sam:
-    input:
-        bam = "{output_prefix}.bam"
-    output:
-        sam=temp("{output_prefix}.sam")
-    shell:
-        "samtools view {input.bam} > {output.sam}" # equivalent to --no-header
-
-rule split_sams:
-    input:
-        sam="{output_prefix}.sam",
+        bam="{output_prefix}.bam",
     params:
         threads = config.get("threads"),
         split_output = "{output_prefix}.split.{split_suffix}",
-        prefix = expand("{output_prefix}.split.",output_prefix=config.get("output_prefix")),
+        prefix = expand("{output_prefix}_split",output_prefix=config.get("output_prefix")),
     output:
-        split=temp("{output_prefix}.split.{split_suffix}.txt")
-    
+        split_bam=expand("{output_prefix}_split_{split_suffix}.bam")
     shell:
-        "split --numeric-suffixes=0 --additional-suffix=.txt --lines $(echo `wc -l {input.sam} | cut -f1 -d \" \"` /{params.threads}+1 | bc) {input.sam} {params.prefix}"
+        "picard SplitSamByNumberOfReads --INPUT {input.sam} -N_FILES {params.threads} --OUTPUT . --OUTPUT_PREFIX {params.prefix}"
 
-rule reheader:
+rule bam_to_sam:
     input:
-        header="{output_prefix}_header.txt",
-        split="{output_prefix}.split.{split_suffix}.txt"
+        split_bam="{output_prefix}_split_{split_suffix}.bam"
     output:
-        split_sam=temp("{output_prefix}.split.{split_suffix}.sam")
-    params:
-        output_prefix = config.get("output_prefix")
+        split_sam ="{output_prefix}_split_{split_suffix}.bam"
     shell:
-        "cat {input.header} {input.split} > {output.split_sam}"
+        "samtools view -h {input.split_bam} > {output.split_sam}"
+# rule reheader:
+#     input:
+#         header="{output_prefix}_header.txt",
+#         split="{output_prefix}.split.{split_suffix}.txt"
+#     output:
+#         split_sam=temp("{output_prefix}.split.{split_suffix}.sam")
+#     params:
+#         output_prefix = config.get("output_prefix")
+#     shell:
+#         "cat {input.header} {input.split} > {output.split_sam}"
 
 #run periscope
 rule periscope:
     input:
-        split_sam = expand("{output_prefix}.split.{split_suffix}.sam",output_prefix=config.get("output_prefix"),split_suffix=split_suffix),        
+        split_sam = expand("{output_prefix}_split_{split_suffix}.sam",output_prefix=config.get("output_prefix"),split_suffix=split_suffix),        
         bam = "{output_prefix}.bam",
         bai = "{output_prefix}.bam.bai"
     output:
