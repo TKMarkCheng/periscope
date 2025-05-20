@@ -1,5 +1,10 @@
 threads = config.get("mapping_threads")
 split_suffix = [f"{i+1:04}" for i in range(int(threads))]
+
+wildcard_constraints:
+    output_prefix=config.get("output_prefix"),
+    split_suffix='|'.join(split_suffix),
+
 rule all:
     input:
         # # merged fastq file
@@ -16,7 +21,7 @@ rule all:
         # expand("{output_prefix}_periscope.bam",output_prefix=config.get("output_prefix")),
         # expand("{output_prefix}_periscope.bam.bai",output_prefix=config.get("output_prefix"))
 
-        expand("{output_prefix}_header.txt",output_prefix=config.get("output_prefix")),
+        # expand("{output_prefix}_header.txt",output_prefix=config.get("output_prefix")),
         # expand("{output_prefix}.split.{split_suffix}.sam",output_prefix=config.get("output_prefix"),split_suffix=split_suffix),
 
 if config["technology"] == "illumina":
@@ -90,57 +95,42 @@ rule index:
     shell:
         "samtools index {input.bam}"
 
-#split the bam file for faster processing
-# rule split_get_header:
-#     input:
-#         bam = "{output_prefix}.bam"
-#     output:
-#         header = temp("{output_prefix}_header.txt"),
-#     shell:
-#         "samtools view -H {input.bam} > {output.header}" # -H = header only
-rule split_bams:
-    input:
-        bam="{output_prefix}.bam",
-    params:
-        threads = config.get("threads"),
-        split_output = "{output_prefix}.split.{split_suffix}",
-        prefix = expand("{output_prefix}_split",output_prefix=config.get("output_prefix")),
-    output:
-        split_bam=expand("{output_prefix}_split_{split_suffix}.bam")
-    shell:
-        "picard SplitSamByNumberOfReads --INPUT {input.sam} -N_FILES {params.threads} --OUTPUT . --OUTPUT_PREFIX {params.prefix}"
-
 rule bam_to_sam:
     input:
-        split_bam="{output_prefix}_split_{split_suffix}.bam"
+        bam="{output_prefix}.bam"
     output:
-        split_sam ="{output_prefix}_split_{split_suffix}.bam"
+        sam ="{output_prefix}.sam"
     shell:
-        "samtools view -h {input.split_bam} > {output.split_sam}"
-# rule reheader:
+        "samtools view -h {input.bam} > {output.sam}"
+# rule split_bams:
 #     input:
-#         header="{output_prefix}_header.txt",
-#         split="{output_prefix}.split.{split_suffix}.txt"
-#     output:
-#         split_sam=temp("{output_prefix}.split.{split_suffix}.sam")
+#         bam="{output_prefix}.bam",
 #     params:
-#         output_prefix = config.get("output_prefix")
+#         threads = config.get("threads"),
+#         split_output = "{output_prefix}.split.{split_suffix}",
+#         prefix = expand("{output_prefix}_split",output_prefix=config.get("output_prefix")),
+#     output:
+#         split_bam = expand("{output_prefix}_split_{split_suffix}.bam",output_prefix=config.get("output_prefix"),split_suffix=split_suffix),
 #     shell:
-#         "cat {input.header} {input.split} > {output.split_sam}"
+#         "picard SplitSamByNumberOfReads --INPUT {input.sam} -N_FILES {params.threads} --OUTPUT . --OUTPUT_PREFIX {params.prefix}"
 
 #run periscope
 rule periscope:
     input:
-        split_sam = expand("{output_prefix}_split_{split_suffix}.sam",output_prefix=config.get("output_prefix"),split_suffix=split_suffix),        
+        sam ="{output_prefix}.sam",
         bam = "{output_prefix}.bam",
         bai = "{output_prefix}.bam.bai"
     output:
+        # split_sam = expand("{output_prefix}_split_{split_suffix}.sam",output_prefix=config.get("output_prefix"),split_suffix=split_suffix),
         # expand("{output_prefix}_periscope.bam",output_prefix=config.get("output_prefix")),
         "{output_prefix}_periscope_counts.csv",
         "{output_prefix}_periscope_amplicons.csv",
         "{output_prefix}_periscope_novel_counts.csv",
         # expand("{output_prefix}_periscope.bam.bai",output_prefix=config.get("output_prefix"))
     params:
+        split_output = expand("{output_prefix}_split_{split_suffix}",output_prefix=config.get("output_prefix"),split_suffix=split_suffix),
+        prefix = expand("{output_prefix}_split",output_prefix=config.get("output_prefix")),
+
         search = expand("{scripts_dir}/search_for_sgRNA_{technology}.py",scripts_dir=config.get("scripts_dir"),technology=config.get("technology")),
         output_prefix = config.get("output_prefix"),
         score_cutoff = config.get("score_cutoff"),
@@ -151,7 +141,8 @@ rule periscope:
         tmp = config.get("tmp"),
         threads = config.get("threads")
 
-    shell:
-        "python {params.search} --bam {input.bam} --score-cutoff {params.score_cutoff} --output-prefix {params.output_prefix} --score-cutoff {params.score_cutoff} --sample {params.sample} --orf-bed {params.orf_bed} --primer-bed {params.primer_bed} --amplicon-bed {params.amplicon_bed} --tmp {params.tmp} --threads {params.threads}"
+    run:
+        shell("picard SplitSamByNumberOfReads -I {input.sam} -N_FILES {params.threads} -O . --OUT_PREFIX {params.prefix}")
+        shell("python {params.search} --bam {input.bam} --score-cutoff {params.score_cutoff} --output-prefix {params.output_prefix} --score-cutoff {params.score_cutoff} --sample {params.sample} --orf-bed {params.orf_bed} --primer-bed {params.primer_bed} --amplicon-bed {params.amplicon_bed} --tmp {params.tmp} --threads {params.threads}")
 
 

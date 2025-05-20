@@ -297,7 +297,7 @@ def main(args):
 
     #get a list of bams:
     import glob
-    files = glob.glob(args.output_prefix+".split.*.sam")
+    files = glob.glob(args.output_prefix+"_split_*.sam")
 
     result=[]
     for file in files:
