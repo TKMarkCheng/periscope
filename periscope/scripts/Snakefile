@@ -1,5 +1,6 @@
 threads = config.get("mapping_threads")
 split_suffix = [f"{i+1:04}" for i in range(int(threads))]
+output_prefix = config.get("output_prefix")
 
 wildcard_constraints:
     output_prefix="|".join([config.get("output_prefix")]),
@@ -7,11 +8,11 @@ wildcard_constraints:
 
 rule all:
     input:
-        expand("{output_prefix}.bam", output_prefix=config.get("output_prefix")),
-        expand("{output_prefix}.bam.bai", output_prefix=config.get("output_prefix")),
-        expand("{output_prefix}_periscope_counts.csv", output_prefix=config.get("output_prefix")),
-        expand("{output_prefix}_periscope_novel_counts.csv", output_prefix=config.get("output_prefix")),
-        expand("{output_prefix}_periscope_amplicons.csv", output_prefix=config.get("output_prefix")),
+        f"{output_prefix}.bam",
+        f"{output_prefix}.bam.bai",
+        f"{output_prefix}_periscope_counts.csv",
+        f"{output_prefix}_periscope_novel_counts.csv",
+        f"{output_prefix}_periscope_amplicons.csv",
 
 ########################################
 # ALIGN
@@ -23,7 +24,7 @@ if config["technology"] == "illumina":
         input:
             fastq=config.get("fastq")
         output:
-            "{output_prefix}.bam"
+            f"{output_prefix}.bam"
         params:
             reference=f"{config.get('resources_dir')}/{config.get('reference_fasta')}",
             threads=config.get("mapping_threads")
@@ -59,7 +60,7 @@ elif config["technology"] == "ont":
             input:
                 merged_fastq=f"{{output_prefix}}.{config.get('extension')}"
             output:
-                "{output_prefix}.bam"
+                f"{output_prefix}.bam"
             params:
                 reference=f"{config.get('resources_dir')}/{config.get('reference_fasta')}",
                 threads=config.get("mapping_threads")
@@ -71,7 +72,7 @@ elif config["technology"] == "ont":
             input:
                 fastq=config.get("fastq")
             output:
-                "{output_prefix}.bam"
+                f"{output_prefix}.bam"
             params:
                 reference=f"{config.get('resources_dir')}/{config.get('reference_fasta')}",
                 threads=config.get("mapping_threads")
@@ -84,9 +85,9 @@ elif config["technology"] == "ont":
 
 rule index:
     input:
-        bam="{output_prefix}.bam"
+        bam=f"{output_prefix}.bam"
     output:
-        "{output_prefix}.bam.bai"
+        f"{output_prefix}.bam.bai"
     shell:
         "samtools index {input.bam}"
 
@@ -96,9 +97,9 @@ rule index:
 
 rule bam_to_sam:
     input:
-        bam="{output_prefix}.bam"
+        bam=f"{output_prefix}.bam"
     output:
-        sam="{output_prefix}.sam"
+        sam=temp(f"{output_prefix}.sam")
     shell:
         "samtools view -h {input.bam} > {output.sam}"
 
@@ -106,15 +107,18 @@ rule bam_to_sam:
 # PERISCOPE
 ########################################
 
+# precompute split BAMs list
+split_sams = [f"{output_prefix}_split_{s}.sam" for s in split_suffix]
 rule periscope:
     input:
-        sam="{output_prefix}.sam",
-        bam="{output_prefix}.bam",
-        bai="{output_prefix}.bam.bai"
+        sam=f"{output_prefix}.sam",
+        bam=f"{output_prefix}.bam",
+        bai=f"{output_prefix}.bam.bai"
     output:
-        "{output_prefix}_periscope_counts.csv",
-        "{output_prefix}_periscope_amplicons.csv",
-        "{output_prefix}_periscope_novel_counts.csv"
+        temp(split_sams),
+        f"{output_prefix}_periscope_counts.csv",
+        f"{output_prefix}_periscope_amplicons.csv",
+        f"{output_prefix}_periscope_novel_counts.csv"
     params:
         prefix=f"{config.get('output_prefix')}_split",
         search=f"{config.get('scripts_dir')}/search_for_sgRNA_{config.get('technology')}.py",
@@ -135,12 +139,6 @@ rule periscope:
             -O . \
             --OUT_PREFIX {params.prefix}
         """)
-
-        # mark split outputs as temp so Snakemake deletes them
-        import glob
-        split_files = glob.glob(f"{params.prefix}_*.bam")
-        for f in split_files:
-            temp(f)
 
         shell("""
         python {params.search} \
