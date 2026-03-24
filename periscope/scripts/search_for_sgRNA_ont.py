@@ -23,7 +23,7 @@ from tqdm import tqdm
 
 def get_mapped_reads(bam):
     # find out how many mapped reads there are for bam
-    mapped_reads = int(pysam.flagstat(bam).split("\n")[4].split(" ")[0])-int(pysam.flagstat(bam).split("\n")[2].split(" ")[0])-int(pysam.flagstat(bam).split("\n")[1].split(" ")[0])
+    mapped_reads = int([line for line in pysam.flagstat(bam, split_lines=True) if " mapped (" in line][0].split()[0])
     return mapped_reads
 
 def check_start(bed_object,read):
@@ -555,7 +555,7 @@ def multiprocessing(func, args, workers):
 def main(args):
     # get a list of bams:
     import glob
-    files = glob.glob(args.output_prefix+".split.*.sam")
+    files = glob.glob(args.output_prefix+"_split_*.sam")
 
     result=[]
     for file in files:
@@ -601,7 +601,3 @@ if __name__ == '__main__':
 
     if periscope:
         print("all done", file=sys.stderr)
-
-
-
-
