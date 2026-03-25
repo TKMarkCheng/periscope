@@ -560,22 +560,35 @@ def main(args):
     result=[]
     for file in files:
         result.append([file,args])
-
-    #initiate parallel processing of reads
-    processed = multiprocessing(
-        process_reads,
-        args=result,
-        workers=int(args.threads)
-    )
-
-    #combine total counts from multiprocessing
-    primer_bed_object = read_bed_file(args.primer_bed)
-    total_counts = combine(processed, primer_bed_object)
-
-    finalise(args, total_counts)
-
     output_bams = [file+"_periscope_temp.bam" for file in files]
-    pysam.merge(*["-f",args.output_prefix + "_periscope.bam"]+output_bams)
+    output_bams_merged = args.output_prefix + "_periscope.bam"
+
+    try:
+        # initiate parallel processing of reads
+        processed = multiprocessing(
+            process_reads,
+            args=result,
+            workers=int(args.threads)
+        )
+
+        # combine total counts from multiprocessing
+        primer_bed_object = read_bed_file(args.primer_bed)
+        total_counts = combine(processed, primer_bed_object)
+
+        # finalise counts and write CSVs
+        finalise(args, total_counts)
+
+        # merge periscope temp bams into final output
+        pysam.merge(*["-f", output_bams_merged] + output_bams)
+
+    finally:
+        # clean up temp BAMs regardless of success/failure
+        for temp_bam in output_bams:
+            if os.path.exists(temp_bam):
+                os.remove(temp_bam)
+        if os.path.exists(output_bams_merged):
+            os.remove(output_bams_merged)
+    
 
 
 if __name__ == '__main__':
